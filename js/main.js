@@ -106,9 +106,13 @@ function updateSelectionSummary() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
+  // body/html 스크롤 항상 허용
+  document.body.style.overflow = '';
+  document.body.style.height = '';
+  document.documentElement.style.overflow = '';
+  // 맨 위로 이동
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 }
-
 // ============================================================
 // 설문 시작
 // ============================================================
@@ -125,6 +129,11 @@ function startSurvey() {
   renderCategoryTabs();
   renderQuestions();
   showScreen('survey-screen');
+  // 스크롤 확실히 풀기
+  document.body.style.overflow = '';
+  document.body.style.height = '';
+  document.documentElement.style.overflow = '';
+  document.documentElement.style.height = '';
 }
 
 // ============================================================
