@@ -25,7 +25,9 @@
   --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -33,6 +35,7 @@ body {
   color: var(--gray-800);
   line-height: 1.6;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 a { text-decoration: none; color: inherit; }
@@ -40,20 +43,20 @@ a { text-decoration: none; color: inherit; }
 /* ==============================
    SCREEN SYSTEM
 ============================== */
-.screen { display: none; }
-.screen.active { display: block; }
+.screen { display: none !important; }
+.screen.active { display: block !important; }
 
 /* ==============================
    INTRO SCREEN
 ============================== */
 #intro-screen {
   min-height: 100vh;
-  display: none;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 32px 16px;
 }
-#intro-screen.active { display: flex; }
+#intro-screen.active { display: flex !important; }
 
 .intro-container {
   background: #fff;
@@ -147,7 +150,7 @@ a { text-decoration: none; color: inherit; }
   padding: 0 16px 80px;
 }
 
-/* 헤더 */
+/* �ㅻ뜑 */
 .survey-header {
   position: sticky;
   top: 0;
@@ -184,7 +187,7 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-stats-sm:hover { background: var(--primary); color: #fff; }
 
-/* 진행바 */
+/* 吏꾪뻾諛� */
 .progress-bar-wrap {
   height: 5px;
   background: var(--gray-200);
@@ -206,7 +209,7 @@ a { text-decoration: none; color: inherit; }
   padding-bottom: 8px;
 }
 
-/* 카테고리 탭 */
+/* 移댄뀒怨좊━ �� */
 .category-tabs {
   display: flex;
   gap: 8px;
@@ -249,12 +252,12 @@ a { text-decoration: none; color: inherit; }
   border-color: var(--cat-color, var(--good));
 }
 .cat-tab.cat-done::after {
-  content: '✓';
+  content: '��';
   font-size: .65rem;
   color: var(--cat-color, var(--good));
 }
 
-/* 카테고리 섹션 */
+/* 移댄뀒怨좊━ �뱀뀡 */
 .cat-section { margin-top: 32px; }
 
 .cat-section-header {
@@ -278,7 +281,7 @@ a { text-decoration: none; color: inherit; }
   color: var(--gray-400);
 }
 
-/* 질문 카드 */
+/* 吏덈Ц 移대뱶 */
 .question-card {
   background: #fff;
   border: 1.5px solid var(--gray-200);
@@ -355,7 +358,7 @@ a { text-decoration: none; color: inherit; }
 .q-btn-na:hover, .q-btn-na.selected { background: var(--gray-100); border-color: var(--gray-400); color: var(--gray-500); }
 .q-btn.selected { font-weight: 700; }
 
-/* 제출 영역 */
+/* �쒖텧 �곸뿭 */
 .submit-area {
   position: sticky;
   bottom: 0;
@@ -415,12 +418,11 @@ a { text-decoration: none; color: inherit; }
 #result-screen {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: none;
   align-items: flex-start;
   justify-content: center;
   padding: 40px 16px;
 }
-#result-screen.active { display: flex; }
+#result-screen.active { display: flex !important; overflow-y: auto; padding: 40px 16px; }
 
 .result-container {
   background: #fff;
@@ -468,7 +470,7 @@ a { text-decoration: none; color: inherit; }
 .detail-label { flex: 1; color: var(--gray-600); }
 .detail-val { font-weight: 700; color: var(--gray-800); }
 
-/* 카테고리별 결과 */
+/* 移댄뀒怨좊━蹂� 寃곌낵 */
 .cat-result-title { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
 .cat-result-item {
   display: flex;
@@ -489,7 +491,7 @@ a { text-decoration: none; color: inherit; }
 .cat-result-bar { height: 100%; border-radius: 10px; transition: width .8s ease; }
 .cat-result-pct { min-width: 40px; text-align: right; font-size: .82rem; font-weight: 600; color: var(--gray-600); }
 
-/* 위험 항목 리스트 */
+/* �꾪뿕 ��ぉ 由ъ뒪�� */
 .danger-list-wrap {
   background: #FEF2F2;
   border: 1.5px solid #FECACA;
@@ -583,7 +585,7 @@ body.stats-page { background: var(--gray-100); }
   padding: 28px 20px 60px;
 }
 
-/* 로딩/에러 */
+/* 濡쒕뵫/�먮윭 */
 .loading-state, .error-state {
   display: flex;
   flex-direction: column;
@@ -604,7 +606,7 @@ body.stats-page { background: var(--gray-100); }
   cursor: pointer;
 }
 
-/* 요약 섹션 */
+/* �붿빟 �뱀뀡 */
 .summary-section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -633,7 +635,7 @@ body.stats-page { background: var(--gray-100); }
 .summary-num { font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
 .summary-label { font-size: .8rem; color: var(--gray-500); margin-top: 2px; }
 
-/* 차트 섹션 */
+/* 李⑦듃 �뱀뀡 */
 .chart-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -658,7 +660,7 @@ body.stats-page { background: var(--gray-100); }
 }
 .chart-wrap { position: relative; }
 
-/* 섹션 타이틀 */
+/* �뱀뀡 ���댄� */
 .section-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -669,7 +671,7 @@ body.stats-page { background: var(--gray-100); }
   gap: 10px;
 }
 
-/* 카테고리 요약 그리드 */
+/* 移댄뀒怨좊━ �붿빟 洹몃━�� */
 .cat-summary-section { margin-bottom: 28px; }
 .cat-summary-grid {
   display: grid;
@@ -714,7 +716,7 @@ body.stats-page { background: var(--gray-100); }
 .cat-sum-bar { height: 100%; border-radius: 10px; transition: width .8s ease; }
 .cat-sum-detail { font-size: .75rem; color: var(--gray-400); }
 
-/* 랭킹 */
+/* ��궧 */
 .ranking-section { margin-bottom: 28px; }
 .ranking-list { display: flex; flex-direction: column; gap: 12px; }
 .rank-item {
@@ -736,7 +738,7 @@ body.stats-page { background: var(--gray-100); }
 .rank-pct { font-size: .85rem; font-weight: 700; color: var(--gray-700); min-width: 38px; }
 .rank-count { font-size: .78rem; color: var(--gray-400); white-space: nowrap; }
 
-/* 상세 테이블 */
+/* �곸꽭 �뚯씠釉� */
 .detail-section { margin-bottom: 40px; }
 .detail-filter {
   display: flex;
@@ -785,7 +787,7 @@ body.stats-page { background: var(--gray-100); }
 }
 
 /* ==============================
-   INTRO - 시험 선택 UI
+   INTRO - �쒗뿕 �좏깮 UI
 ============================== */
 .select-block {
   background: var(--gray-50);
@@ -808,7 +810,7 @@ body.stats-page { background: var(--gray-100); }
 .select-label i { color: var(--primary); }
 .required { color: var(--danger); font-size: .85rem; }
 
-/* 시험 유형 버튼 */
+/* �쒗뿕 �좏삎 踰꾪듉 */
 .exam-type-btns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -845,7 +847,7 @@ body.stats-page { background: var(--gray-100); }
 }
 .exam-type-btn.selected i { color: var(--primary); }
 
-/* 시험 종류 그리드 */
+/* �쒗뿕 醫낅쪟 洹몃━�� */
 .exam-category-grid {
   display: flex;
   flex-wrap: wrap;
@@ -877,7 +879,7 @@ body.stats-page { background: var(--gray-100); }
   box-shadow: 0 2px 8px rgba(79,126,247,.3);
 }
 
-/* 선택 요약 배지 */
+/* �좏깮 �붿빟 諛곗� */
 .selection-summary {
   display: flex;
   align-items: center;
@@ -894,7 +896,7 @@ body.stats-page { background: var(--gray-100); }
 }
 .selection-summary i { font-size: 1rem; color: #22C55E; }
 
-/* 시작 버튼 비활성/활성 */
+/* �쒖옉 踰꾪듉 鍮꾪솢��/�쒖꽦 */
 .btn-start:disabled {
   background: var(--gray-300);
   color: var(--gray-500);
@@ -914,7 +916,7 @@ body.stats-page { background: var(--gray-100); }
   margin-bottom: 12px;
 }
 
-/* 설문 헤더 오른쪽 그룹 */
+/* �ㅻЦ �ㅻ뜑 �ㅻⅨ履� 洹몃９ */
 .survey-header-right {
   display: flex;
   align-items: center;
@@ -935,7 +937,7 @@ body.stats-page { background: var(--gray-100); }
   text-overflow: ellipsis;
 }
 
-/* 결과 화면 시험정보 */
+/* 寃곌낵 �붾㈃ �쒗뿕�뺣낫 */
 .result-exam-info-wrap {
   display: flex;
   justify-content: center;
@@ -955,7 +957,7 @@ body.stats-page { background: var(--gray-100); }
 }
 
 /* ==============================
-   STATS - 필터 바
+   STATS - �꾪꽣 諛�
 ============================== */
 .filter-bar-section {
   background: #fff;
@@ -1046,7 +1048,7 @@ body.stats-page { background: var(--gray-100); }
 }
 
 /* ==============================
-   STATS - 시험 종류/유형 현황
+   STATS - �쒗뿕 醫낅쪟/�좏삎 �꾪솴
 ============================== */
 .exam-breakdown-section { margin-bottom: 28px; }
 .exam-breakdown-grid {
