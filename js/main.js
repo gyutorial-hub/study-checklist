@@ -101,17 +101,24 @@ function updateSelectionSummary() {
 }
 
 // ============================================================
-// 화면 전환
+// 화면 전환 - CSS 클래스 방식 완전 제거, style.display 직접 제어
 // ============================================================
+const SCREENS = {
+  'intro-screen':  { display: 'flex' },
+  'survey-screen': { display: 'block' },
+  'result-screen': { display: 'flex' },
+};
+
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  // body/html 스크롤 항상 허용
-  document.body.style.overflow = '';
-  document.body.style.height = '';
-  document.documentElement.style.overflow = '';
-  // 맨 위로 이동
-  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  // 모든 화면 숨기기
+  Object.keys(SCREENS).forEach(screenId => {
+    document.getElementById(screenId).style.display = 'none';
+  });
+  // 대상 화면만 표시
+  const display = SCREENS[id] ? SCREENS[id].display : 'block';
+  document.getElementById(id).style.display = display;
+  // 스크롤 맨 위로
+  window.scrollTo(0, 0);
 }
 // ============================================================
 // 설문 시작
@@ -257,12 +264,18 @@ function updateProgress() {
 }
 
 // ============================================================
+// ============================================================
 // 카테고리 스크롤
 // ============================================================
+function getStickyHeight() {
+  const stickyTop = document.querySelector('.survey-sticky-top');
+  return stickyTop ? stickyTop.offsetHeight + 12 : 160;
+}
+
 function scrollToCategory(catId) {
   const el = document.getElementById(`cat-${catId}`);
   if (el) {
-    const offset = el.getBoundingClientRect().top + window.scrollY - 160;
+    const offset = el.getBoundingClientRect().top + window.scrollY - getStickyHeight();
     window.scrollTo({ top: offset, behavior: 'smooth' });
   }
 }
@@ -270,12 +283,13 @@ function scrollToCategory(catId) {
 // 스크롤 감지 → 활성 카테고리 탭 강조
 window.addEventListener('scroll', () => {
   if (!document.getElementById('survey-screen').classList.contains('active')) return;
+  const stickyH = getStickyHeight();
   let current = null;
   CATEGORIES.forEach(cat => {
     const el = document.getElementById(`cat-${cat.id}`);
     if (el) {
       const rect = el.getBoundingClientRect();
-      if (rect.top <= 200) current = cat.id;
+      if (rect.top <= stickyH + 20) current = cat.id;
     }
   });
   if (current) {

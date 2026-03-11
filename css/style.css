@@ -34,29 +34,30 @@ body {
   background: var(--gray-50);
   color: var(--gray-800);
   line-height: 1.6;
-  min-height: 100vh;
-  overflow-x: hidden;
 }
 
 a { text-decoration: none; color: inherit; }
 
 /* ==============================
    SCREEN SYSTEM
+   - JS가 직접 style.display를 제어
+   - 초기 숨김은 HTML의 style="display:none" 또는 JS 초기화로 처리
 ============================== */
-.screen { display: none !important; }
-.screen.active { display: block !important; }
+.screen {
+  display: none;
+}
 
 /* ==============================
    INTRO SCREEN
 ============================== */
 #intro-screen {
+  display: none;
   min-height: 100vh;
-  align-items: center;
-  justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 32px 16px;
+  align-items: center;
+  justify-content: center;
 }
-#intro-screen.active { display: flex !important; }
 
 .intro-container {
   background: #fff;
@@ -113,22 +114,33 @@ a { text-decoration: none; color: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
+  background: var(--gray-300);
+  color: var(--gray-500);
   border: none;
   padding: 16px 36px;
   font-size: 1.05rem;
   font-weight: 600;
   border-radius: 50px;
-  cursor: pointer;
-  transition: transform .2s, box-shadow .2s;
-  box-shadow: 0 4px 16px rgba(79,126,247,.4);
+  cursor: not-allowed;
   width: 100%;
   justify-content: center;
   font-family: inherit;
+  transition: transform .2s, box-shadow .2s;
 }
-.btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,126,247,.5); }
-.btn-start:active { transform: translateY(0); }
+.btn-start.ready-to-start {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(79,126,247,.4);
+}
+.btn-start.ready-to-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,126,247,.5); }
+.btn-start:disabled {
+  background: var(--gray-300);
+  color: var(--gray-500);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .btn-stats-link {
   display: inline-flex;
@@ -144,21 +156,31 @@ a { text-decoration: none; color: inherit; }
 /* ==============================
    SURVEY SCREEN
 ============================== */
+#survey-screen {
+  display: none;
+}
+
 .survey-wrapper {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 16px 80px;
+  padding: 0 16px 120px;
 }
 
-/* �ㅻ뜑 */
-.survey-header {
+/* sticky 통합 래퍼 */
+.survey-sticky-top {
   position: sticky;
   top: 0;
   z-index: 100;
   background: #fff;
+  margin: 0 -16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* 헤더 */
+.survey-header {
+  background: #fff;
   border-bottom: 1px solid var(--gray-200);
   padding: 12px 16px 0;
-  margin: 0 -16px;
 }
 
 .survey-title-row {
@@ -174,6 +196,27 @@ a { text-decoration: none; color: inherit; }
   color: var(--primary);
 }
 
+.survey-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.survey-exam-badge {
+  display: inline-block;
+  background: #EEF2FF;
+  color: var(--primary);
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #C7D2FE;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .btn-stats-sm {
   display: flex;
   align-items: center;
@@ -187,7 +230,7 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-stats-sm:hover { background: var(--primary); color: #fff; }
 
-/* 吏꾪뻾諛� */
+/* 진행바 */
 .progress-bar-wrap {
   height: 5px;
   background: var(--gray-200);
@@ -209,7 +252,7 @@ a { text-decoration: none; color: inherit; }
   padding-bottom: 8px;
 }
 
-/* 移댄뀒怨좊━ �� */
+/* 카테고리 탭 */
 .category-tabs {
   display: flex;
   gap: 8px;
@@ -217,7 +260,6 @@ a { text-decoration: none; color: inherit; }
   padding: 10px 16px;
   background: #fff;
   border-bottom: 1px solid var(--gray-200);
-  margin: 0 -16px;
   scrollbar-width: none;
 }
 .category-tabs::-webkit-scrollbar { display: none; }
@@ -252,12 +294,17 @@ a { text-decoration: none; color: inherit; }
   border-color: var(--cat-color, var(--good));
 }
 .cat-tab.cat-done::after {
-  content: '��';
+  content: '✓';
   font-size: .65rem;
   color: var(--cat-color, var(--good));
 }
 
-/* 移댄뀒怨좊━ �뱀뀡 */
+/* 질문 컨테이너 */
+.questions-container {
+  padding-top: 8px;
+}
+
+/* 카테고리 섹션 */
 .cat-section { margin-top: 32px; }
 
 .cat-section-header {
@@ -281,7 +328,7 @@ a { text-decoration: none; color: inherit; }
   color: var(--gray-400);
 }
 
-/* 吏덈Ц 移대뱶 */
+/* 질문 카드 */
 .question-card {
   background: #fff;
   border: 1.5px solid var(--gray-200);
@@ -351,17 +398,17 @@ a { text-decoration: none; color: inherit; }
   color: var(--gray-600);
 }
 .q-btn:hover { transform: translateY(-1px); }
-
 .q-btn-yes:hover, .q-btn-yes.selected { background: #FEF2F2; border-color: #EF4444; color: #EF4444; }
 .q-btn-maybe:hover, .q-btn-maybe.selected { background: #FFFBEB; border-color: #F59E0B; color: #D97706; }
 .q-btn-no:hover, .q-btn-no.selected { background: #F0FDF4; border-color: #22C55E; color: #16A34A; }
 .q-btn-na:hover, .q-btn-na.selected { background: var(--gray-100); border-color: var(--gray-400); color: var(--gray-500); }
 .q-btn.selected { font-weight: 700; }
 
-/* �쒖텧 �곸뿭 */
+/* 제출 영역 */
 .submit-area {
   position: sticky;
   bottom: 0;
+  z-index: 99;
   background: #fff;
   border-top: 1px solid var(--gray-200);
   padding: 16px;
@@ -416,13 +463,13 @@ a { text-decoration: none; color: inherit; }
    RESULT SCREEN
 ============================== */
 #result-screen {
-  min-height: 100vh;
+  display: none;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  align-items: flex-start;
-  justify-content: center;
+  min-height: 100vh;
   padding: 40px 16px;
+  align-items: center;
+  justify-content: center;
 }
-#result-screen.active { display: flex !important; overflow-y: auto; padding: 40px 16px; }
 
 .result-container {
   background: #fff;
@@ -436,7 +483,25 @@ a { text-decoration: none; color: inherit; }
 
 .result-icon { font-size: 3rem; color: var(--primary); text-align: center; margin-bottom: 12px; }
 .result-title { font-size: 1.8rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
-.result-subtitle { color: var(--gray-500); text-align: center; margin-bottom: 28px; }
+.result-subtitle { color: var(--gray-500); text-align: center; margin-bottom: 12px; }
+
+.result-exam-info-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.result-exam-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #EEF2FF;
+  color: var(--primary);
+  font-size: .88rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1.5px solid #C7D2FE;
+}
 
 .result-score-card {
   display: flex;
@@ -470,7 +535,6 @@ a { text-decoration: none; color: inherit; }
 .detail-label { flex: 1; color: var(--gray-600); }
 .detail-val { font-weight: 700; color: var(--gray-800); }
 
-/* 移댄뀒怨좊━蹂� 寃곌낵 */
 .cat-result-title { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
 .cat-result-item {
   display: flex;
@@ -491,7 +555,6 @@ a { text-decoration: none; color: inherit; }
 .cat-result-bar { height: 100%; border-radius: 10px; transition: width .8s ease; }
 .cat-result-pct { min-width: 40px; text-align: right; font-size: .82rem; font-weight: 600; color: var(--gray-600); }
 
-/* �꾪뿕 ��ぉ 由ъ뒪�� */
 .danger-list-wrap {
   background: #FEF2F2;
   border: 1.5px solid #FECACA;
@@ -585,7 +648,6 @@ body.stats-page { background: var(--gray-100); }
   padding: 28px 20px 60px;
 }
 
-/* 濡쒕뵫/�먮윭 */
 .loading-state, .error-state {
   display: flex;
   flex-direction: column;
@@ -606,7 +668,6 @@ body.stats-page { background: var(--gray-100); }
   cursor: pointer;
 }
 
-/* �붿빟 �뱀뀡 */
 .summary-section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -635,7 +696,6 @@ body.stats-page { background: var(--gray-100); }
 .summary-num { font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
 .summary-label { font-size: .8rem; color: var(--gray-500); margin-top: 2px; }
 
-/* 李⑦듃 �뱀뀡 */
 .chart-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -660,7 +720,6 @@ body.stats-page { background: var(--gray-100); }
 }
 .chart-wrap { position: relative; }
 
-/* �뱀뀡 ���댄� */
 .section-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -671,7 +730,6 @@ body.stats-page { background: var(--gray-100); }
   gap: 10px;
 }
 
-/* 移댄뀒怨좊━ �붿빟 洹몃━�� */
 .cat-summary-section { margin-bottom: 28px; }
 .cat-summary-grid {
   display: grid;
@@ -716,7 +774,6 @@ body.stats-page { background: var(--gray-100); }
 .cat-sum-bar { height: 100%; border-radius: 10px; transition: width .8s ease; }
 .cat-sum-detail { font-size: .75rem; color: var(--gray-400); }
 
-/* ��궧 */
 .ranking-section { margin-bottom: 28px; }
 .ranking-list { display: flex; flex-direction: column; gap: 12px; }
 .rank-item {
@@ -738,7 +795,6 @@ body.stats-page { background: var(--gray-100); }
 .rank-pct { font-size: .85rem; font-weight: 700; color: var(--gray-700); min-width: 38px; }
 .rank-count { font-size: .78rem; color: var(--gray-400); white-space: nowrap; }
 
-/* �곸꽭 �뚯씠釉� */
 .detail-section { margin-bottom: 40px; }
 .detail-filter {
   display: flex;
@@ -787,7 +843,7 @@ body.stats-page { background: var(--gray-100); }
 }
 
 /* ==============================
-   INTRO - �쒗뿕 �좏깮 UI
+   INTRO - 시험 선택 UI
 ============================== */
 .select-block {
   background: var(--gray-50);
@@ -810,7 +866,6 @@ body.stats-page { background: var(--gray-100); }
 .select-label i { color: var(--primary); }
 .required { color: var(--danger); font-size: .85rem; }
 
-/* �쒗뿕 �좏삎 踰꾪듉 */
 .exam-type-btns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -833,11 +888,7 @@ body.stats-page { background: var(--gray-100); }
 }
 .exam-type-btn i { font-size: 1.5rem; color: var(--gray-300); transition: color .2s; }
 .exam-type-name { font-size: .9rem; font-weight: 600; }
-.exam-type-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: #EEF2FF;
-}
+.exam-type-btn:hover { border-color: var(--primary); color: var(--primary); background: #EEF2FF; }
 .exam-type-btn:hover i { color: var(--primary); }
 .exam-type-btn.selected {
   border-color: var(--primary);
@@ -847,7 +898,6 @@ body.stats-page { background: var(--gray-100); }
 }
 .exam-type-btn.selected i { color: var(--primary); }
 
-/* �쒗뿕 醫낅쪟 洹몃━�� */
 .exam-category-grid {
   display: flex;
   flex-wrap: wrap;
@@ -867,11 +917,7 @@ body.stats-page { background: var(--gray-100); }
   transition: all .2s;
   white-space: nowrap;
 }
-.exam-cat-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: #EEF2FF;
-}
+.exam-cat-btn:hover { border-color: var(--primary); color: var(--primary); background: #EEF2FF; }
 .exam-cat-btn.selected {
   border-color: var(--primary);
   background: var(--primary);
@@ -879,7 +925,6 @@ body.stats-page { background: var(--gray-100); }
   box-shadow: 0 2px 8px rgba(79,126,247,.3);
 }
 
-/* �좏깮 �붿빟 諛곗� */
 .selection-summary {
   display: flex;
   align-items: center;
@@ -896,19 +941,6 @@ body.stats-page { background: var(--gray-100); }
 }
 .selection-summary i { font-size: 1rem; color: #22C55E; }
 
-/* �쒖옉 踰꾪듉 鍮꾪솢��/�쒖꽦 */
-.btn-start:disabled {
-  background: var(--gray-300);
-  color: var(--gray-500);
-  box-shadow: none;
-  cursor: not-allowed;
-  transform: none;
-}
-.btn-start.ready-to-start {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  cursor: pointer;
-}
-
 .select-required-note {
   font-size: .78rem;
   color: var(--gray-400);
@@ -916,48 +948,8 @@ body.stats-page { background: var(--gray-100); }
   margin-bottom: 12px;
 }
 
-/* �ㅻЦ �ㅻ뜑 �ㅻⅨ履� 洹몃９ */
-.survey-header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.survey-exam-badge {
-  display: inline-block;
-  background: #EEF2FF;
-  color: var(--primary);
-  font-size: .75rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid #C7D2FE;
-  white-space: nowrap;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 寃곌낵 �붾㈃ �쒗뿕�뺣낫 */
-.result-exam-info-wrap {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-.result-exam-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #EEF2FF;
-  color: var(--primary);
-  font-size: .88rem;
-  font-weight: 600;
-  padding: 8px 18px;
-  border-radius: 20px;
-  border: 1.5px solid #C7D2FE;
-}
-
 /* ==============================
-   STATS - �꾪꽣 諛�
+   STATS - 필터 바
 ============================== */
 .filter-bar-section {
   background: #fff;
@@ -966,89 +958,43 @@ body.stats-page { background: var(--gray-100); }
   box-shadow: var(--shadow);
   margin-bottom: 24px;
 }
-
-.filter-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.filter-group {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
+.filter-bar { display: flex; flex-direction: column; gap: 16px; }
+.filter-group { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
 .filter-group-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: .82rem;
-  font-weight: 700;
-  color: var(--gray-600);
-  white-space: nowrap;
-  padding-top: 6px;
-  min-width: 80px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: .82rem; font-weight: 700; color: var(--gray-600);
+  white-space: nowrap; padding-top: 6px; min-width: 80px;
 }
 .filter-group-label i { color: var(--primary); }
-
-.filter-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
+.filter-btns { display: flex; flex-wrap: wrap; gap: 7px; }
 .filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  display: inline-flex; align-items: center; gap: 5px;
   padding: 6px 14px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: 20px;
-  background: #fff;
-  font-family: inherit;
-  font-size: .82rem;
-  font-weight: 500;
-  color: var(--gray-500);
-  cursor: pointer;
-  transition: all .2s;
-  white-space: nowrap;
+  border: 1.5px solid var(--gray-200); border-radius: 20px;
+  background: #fff; font-family: inherit; font-size: .82rem;
+  font-weight: 500; color: var(--gray-500); cursor: pointer;
+  transition: all .2s; white-space: nowrap;
 }
-.filter-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: #EEF2FF;
-}
+.filter-btn:hover { border-color: var(--primary); color: var(--primary); background: #EEF2FF; }
 .filter-btn.active {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: #fff;
+  border-color: var(--primary); background: var(--primary); color: #fff;
   box-shadow: 0 2px 8px rgba(79,126,247,.25);
 }
-
 .filter-active-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  padding-top: 14px;
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 14px; padding-top: 14px;
   border-top: 1px solid var(--gray-100);
-  font-size: .82rem;
-  color: var(--gray-500);
+  font-size: .82rem; color: var(--gray-500);
 }
 .filter-active-info i { color: var(--primary); }
 .filter-count-badge {
-  background: var(--primary);
-  color: #fff;
-  font-size: .75rem;
-  font-weight: 700;
-  padding: 2px 10px;
-  border-radius: 20px;
+  background: var(--primary); color: #fff;
+  font-size: .75rem; font-weight: 700;
+  padding: 2px 10px; border-radius: 20px;
 }
 
 /* ==============================
-   STATS - �쒗뿕 醫낅쪟/�좏삎 �꾪솴
+   STATS - 시험 종류/유형 현황
 ============================== */
 .exam-breakdown-section { margin-bottom: 28px; }
 .exam-breakdown-grid {
@@ -1058,49 +1004,13 @@ body.stats-page { background: var(--gray-100); }
 }
 @media (max-width: 700px) { .exam-breakdown-grid { grid-template-columns: 1fr; } }
 
-.cat-count-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.cat-count-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.cat-count-rank {
-  font-size: .75rem;
-  font-weight: 700;
-  color: var(--gray-400);
-  min-width: 22px;
-  text-align: center;
-}
-.cat-count-name {
-  font-size: .83rem;
-  color: var(--gray-700);
-  min-width: 72px;
-  font-weight: 500;
-}
-.cat-count-bar-bg {
-  flex: 1;
-  height: 7px;
-  background: var(--gray-100);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.cat-count-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), #9B59B6);
-  border-radius: 10px;
-  transition: width .6s ease;
-}
-.cat-count-val {
-  font-size: .8rem;
-  font-weight: 700;
-  color: var(--gray-600);
-  min-width: 36px;
-  text-align: right;
-}
+.cat-count-list { display: flex; flex-direction: column; gap: 8px; }
+.cat-count-row { display: flex; align-items: center; gap: 10px; }
+.cat-count-rank { font-size: .75rem; font-weight: 700; color: var(--gray-400); min-width: 22px; text-align: center; }
+.cat-count-name { font-size: .83rem; color: var(--gray-700); min-width: 72px; font-weight: 500; }
+.cat-count-bar-bg { flex: 1; height: 7px; background: var(--gray-100); border-radius: 10px; overflow: hidden; }
+.cat-count-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #9B59B6); border-radius: 10px; transition: width .6s ease; }
+.cat-count-val { font-size: .8rem; font-weight: 700; color: var(--gray-600); min-width: 36px; text-align: right; }
 
 /* ==============================
    ANIMATIONS
@@ -1109,7 +1019,6 @@ body.stats-page { background: var(--gray-100); }
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20% { transform: translateX(-8px); }
@@ -1122,7 +1031,7 @@ body.stats-page { background: var(--gray-100); }
    RESPONSIVE
 ============================== */
 @media (max-width: 520px) {
-  .intro-container { padding: 32px 24px; }
+  .intro-container { padding: 32px 20px; }
   .intro-title { font-size: 1.4rem; }
   .result-container { padding: 28px 20px; }
   .result-score-card { flex-direction: column; }

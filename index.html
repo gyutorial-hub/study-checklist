@@ -10,7 +10,7 @@
 </head>
 <body>
   <!-- 인트로 화면 -->
-  <div id="intro-screen" class="screen active">
+  <div id="intro-screen" style="display:flex;">
     <div class="intro-container">
       <div class="intro-icon"><i class="fas fa-clipboard-check"></i></div>
       <h1 class="intro-title">수험생 학습 습관<br/>자가진단 체크리스트</h1>
@@ -70,26 +70,27 @@
   </div>
 
   <!-- 설문 화면 -->
-  <div id="survey-screen" class="screen">
+  <div id="survey-screen" style="display:none;">
     <div class="survey-wrapper">
-      <!-- 상단 헤더 -->
-      <div class="survey-header">
-        <div class="survey-title-row">
-          <span class="survey-logo"><i class="fas fa-clipboard-check"></i> 학습 습관 자가진단</span>
-          <div class="survey-header-right">
-            <span class="survey-exam-badge" id="surveyExamBadge"></span>
-            <a href="stats.html" class="btn-stats-sm"><i class="fas fa-chart-bar"></i> 통계</a>
+      <!-- 상단 sticky 헤더 (헤더 + 카테고리 탭 통합) -->
+      <div class="survey-sticky-top">
+        <div class="survey-header">
+          <div class="survey-title-row">
+            <span class="survey-logo"><i class="fas fa-clipboard-check"></i> 학습 습관 자가진단</span>
+            <div class="survey-header-right">
+              <span class="survey-exam-badge" id="surveyExamBadge"></span>
+              <a href="stats.html" class="btn-stats-sm"><i class="fas fa-chart-bar"></i> 통계</a>
+            </div>
           </div>
+          <!-- 진행바 -->
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="progress-text" id="progressText">0 / 82</div>
         </div>
-        <!-- 진행바 -->
-        <div class="progress-bar-wrap">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <div class="progress-text" id="progressText">0 / 82</div>
+        <!-- 카테고리 탭 -->
+        <div class="category-tabs" id="categoryTabs"></div>
       </div>
-
-      <!-- 카테고리 탭 -->
-      <div class="category-tabs" id="categoryTabs"></div>
 
       <!-- 질문 목록 -->
       <div class="questions-container" id="questionsContainer"></div>
@@ -109,7 +110,7 @@
   </div>
 
   <!-- 결과 화면 -->
-  <div id="result-screen" class="screen">
+  <div id="result-screen" style="display:none;">
     <div class="result-container">
       <div class="result-icon"><i class="fas fa-chart-pie"></i></div>
       <h2 class="result-title">진단 완료!</h2>
