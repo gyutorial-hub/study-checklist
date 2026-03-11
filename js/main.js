@@ -16,6 +16,7 @@ let answers = {};
 let sessionId = generateSessionId();
 let selectedExamType = null;      // '객관식' | '논술형·주관식'
 let selectedExamCategory = null;  // EXAM_CATEGORIES 중 하나
+let selectedMbti = null;          // MBTI 16종 중 하나
 
 function generateSessionId() {
   return 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -36,6 +37,18 @@ function renderExamCategoryGrid() {
       ${cat}
     </button>
   `).join('');
+}
+
+// ============================================================
+// MBTI 선택
+// ============================================================
+function selectMbti(value) {
+  selectedMbti = value;
+  document.querySelectorAll('.mbti-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.value === value);
+  });
+  updateStartButton();
+  updateSelectionSummary();
 }
 
 // ============================================================
@@ -68,7 +81,7 @@ function selectExamCategory(value) {
 function updateStartButton() {
   const btn = document.getElementById('btnStart');
   const note = document.getElementById('selectNote');
-  if (selectedExamType && selectedExamCategory) {
+  if (selectedMbti && selectedExamType && selectedExamCategory) {
     btn.disabled = false;
     btn.classList.add('ready-to-start');
     if (note) note.style.display = 'none';
@@ -86,14 +99,12 @@ function updateSelectionSummary() {
   const el = document.getElementById('selectionSummary');
   const textEl = document.getElementById('selectionText');
   if (!el || !textEl) return;
-  if (selectedExamType && selectedExamCategory) {
-    textEl.textContent = `${selectedExamCategory} · ${selectedExamType}`;
-    el.style.display = 'flex';
-  } else if (selectedExamType) {
-    textEl.textContent = `${selectedExamType} 선택됨`;
-    el.style.display = 'flex';
-  } else if (selectedExamCategory) {
-    textEl.textContent = `${selectedExamCategory} 선택됨`;
+  const parts = [];
+  if (selectedMbti) parts.push(selectedMbti);
+  if (selectedExamCategory) parts.push(selectedExamCategory);
+  if (selectedExamType) parts.push(selectedExamType);
+  if (parts.length > 0) {
+    textEl.textContent = parts.join(' · ');
     el.style.display = 'flex';
   } else {
     el.style.display = 'none';
@@ -106,7 +117,7 @@ function updateSelectionSummary() {
 const SCREENS = {
   'intro-screen':  { display: 'flex' },
   'survey-screen': { display: 'block' },
-  'result-screen': { display: 'flex' },
+  'result-screen': { display: 'block' },
 };
 
 function showScreen(id) {
@@ -124,14 +135,14 @@ function showScreen(id) {
 // 설문 시작
 // ============================================================
 function startSurvey() {
-  if (!selectedExamType || !selectedExamCategory) {
-    alert('시험 유형과 시험 종류를 모두 선택해주세요.');
+  if (!selectedMbti || !selectedExamType || !selectedExamCategory) {
+    alert('MBTI, 시험 유형, 시험 종류를 모두 선택해주세요.');
     return;
   }
   // 설문 헤더 배지 업데이트
   const badge = document.getElementById('surveyExamBadge');
   if (badge) {
-    badge.textContent = `${selectedExamCategory} · ${selectedExamType}`;
+    badge.textContent = `${selectedMbti} · ${selectedExamCategory} · ${selectedExamType}`;
   }
   renderCategoryTabs();
   renderQuestions();
@@ -335,6 +346,7 @@ async function submitSurvey() {
       session_id: sessionId,
       exam_type: selectedExamType,
       exam_category: selectedExamCategory,
+      mbti: selectedMbti,
       submitted_at: new Date().toISOString(),
     };
     QUESTIONS.forEach(q => {
@@ -347,10 +359,26 @@ async function submitSurvey() {
       body: JSON.stringify(payload),
     });
 
-    if (!resp.ok) throw new Error('서버 오류');
+    if (!resp.ok) {
+      let errText = '';
+      try { errText = await resp.text(); } catch(_) {}
+      console.error('서버 응답 오류:', resp.status, errText);
+      throw new Error(`HTTP ${resp.status}: ${errText}`);
+    }
+
+    // 저장 성공
     showResult();
   } catch (e) {
-    alert('저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    console.error('제출 오류:', e);
+    // 네트워크 오류 여부 확인
+    const isNetwork = e instanceof TypeError;
+    if (isNetwork) {
+      alert('네트워크 오류가 발생했습니다.\n인터넷 연결을 확인한 후 다시 시도해주세요.');
+    } else {
+      // 저장 실패해도 결과 화면은 보여줌 (오프라인 폴백)
+      console.warn('저장 실패, 결과 화면으로 진행합니다.');
+      showResult();
+    }
     submitBtn.disabled = false;
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 진단 결과 제출하기';
   }
@@ -361,70 +389,204 @@ async function submitSurvey() {
 // ============================================================
 function showResult() {
   let yesCount = 0, maybeCount = 0, noCount = 0, naCount = 0;
-  const dangerItems = [];
 
   QUESTIONS.forEach(q => {
     const ans = answers[q.id];
-    if (ans === '맞다') { yesCount++; dangerItems.push(q); }
+    if (ans === '맞다') yesCount++;
     else if (ans === '잘 모르겠다') maybeCount++;
     else if (ans === '아니다') noCount++;
     else naCount++;
   });
 
   document.getElementById('dangerCount').textContent = yesCount;
-  document.getElementById('yesCount').textContent = yesCount;
   document.getElementById('maybeCount').textContent = maybeCount;
   document.getElementById('noCount').textContent = noCount;
 
   // 시험 정보 배지
   const examInfoEl = document.getElementById('resultExamInfo');
   if (examInfoEl) {
-    examInfoEl.textContent = `${selectedExamCategory} · ${selectedExamType}`;
+    examInfoEl.textContent = `${selectedMbti} · ${selectedExamCategory} · ${selectedExamType}`;
   }
 
-  // 카테고리별 결과
-  const catResult = document.getElementById('categoryResult');
-  catResult.innerHTML = '<h3 class="cat-result-title">카테고리별 결과</h3>' +
-    CATEGORIES.map(cat => {
-      const catQs = QUESTIONS.filter(q => q.cat === cat.id);
-      const catYes = catQs.filter(q => answers[q.id] === '맞다').length;
-      const catTotal = catQs.filter(q => answers[q.id] !== '해당없음').length;
-      const pct = catTotal > 0 ? Math.round((catYes / catTotal) * 100) : 0;
-      let level = pct >= 60 ? 'danger' : pct >= 30 ? 'warn' : 'good';
-      return `
-        <div class="cat-result-item ${level}">
-          <div class="cat-result-left">
-            <i class="fas ${cat.icon}" style="color:${cat.color}"></i>
-            <span>${cat.label}</span>
-          </div>
-          <div class="cat-result-bar-wrap">
-            <div class="cat-result-bar" style="width:${pct}%;background:${cat.color}"></div>
-          </div>
-          <div class="cat-result-pct">${catYes}/${catTotal}</div>
-        </div>
-      `;
-    }).join('');
+  // ── MBTI 맞춤 조언 ─────────────────────────────────────────
+  renderMbtiAdvice();
 
-  // 위험 항목 리스트
-  const dangerList = document.getElementById('dangerList');
-  if (dangerItems.length === 0) {
-    document.getElementById('dangerListWrap').style.display = 'none';
-  } else {
-    document.getElementById('dangerListWrap').style.display = 'block';
-    dangerList.innerHTML = dangerItems.map(q => {
-      const cat = CATEGORIES.find(c => c.id === q.cat);
-      return `
-        <li class="danger-item">
-          <span class="danger-cat" style="color:${cat.color}">
-            <i class="fas ${cat.icon}"></i> ${cat.label}
-          </span>
-          <span class="danger-text">Q${q.id}. ${q.text}</span>
-        </li>
-      `;
-    }).join('');
-  }
+  // ── 카테고리별 솔루션 ─────────────────────────────────────
+  renderCategorySolutions();
 
   showScreen('result-screen');
+}
+
+// ── MBTI 조언 렌더링 ────────────────────────────────────────
+function renderMbtiAdvice() {
+  const profile = MBTI_PROFILES[selectedMbti];
+  if (!profile) return;
+
+  const titleEl = document.getElementById('mbtiAdviceTitle');
+  if (titleEl) titleEl.textContent = `${selectedMbti} (${profile.nickname}) 맞춤 학습 조언`;
+
+  const card = document.getElementById('mbtiAdviceCard');
+  if (!card) return;
+
+  const groupColors = {
+    analyst: { bg: '#EEF2FF', border: '#6366F1', badge: '#6366F1' },
+    diplomat: { bg: '#F0FDF4', border: '#22C55E', badge: '#22C55E' },
+    sentinel: { bg: '#FFF7ED', border: '#F97316', badge: '#F97316' },
+    explorer: { bg: '#FFF1F2', border: '#F43F5E', badge: '#F43F5E' },
+  };
+  const gc = groupColors[profile.group] || groupColors.analyst;
+
+  const groupLabel = { analyst: '분석가형', diplomat: '외교관형', sentinel: '관리자형', explorer: '탐험가형' };
+
+  card.innerHTML = `
+    <div class="mbti-card-inner" style="background:${gc.bg};border-color:${gc.border}">
+      <div class="mbti-card-head">
+        <div class="mbti-card-emoji">${profile.emoji}</div>
+        <div class="mbti-card-info">
+          <div class="mbti-card-type">
+            <span class="mbti-type-badge" style="background:${gc.badge}">${selectedMbti}</span>
+            <span class="mbti-group-badge">${groupLabel[profile.group]}</span>
+          </div>
+          <div class="mbti-card-trait">${profile.studyTrait}</div>
+        </div>
+      </div>
+
+      <div class="mbti-sw-grid">
+        <div class="mbti-sw-block strength">
+          <div class="mbti-sw-label"><i class="fas fa-thumbs-up"></i> 강점</div>
+          <ul>${profile.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="mbti-sw-block weakness">
+          <div class="mbti-sw-label"><i class="fas fa-exclamation-triangle"></i> 약점</div>
+          <ul>${profile.weaknesses.map(w => `<li>${w}</li>`).join('')}</ul>
+        </div>
+      </div>
+
+      <div class="mbti-advice-list">
+        <div class="mbti-advice-heading"><i class="fas fa-lightbulb"></i> 맞춤 조언</div>
+        ${profile.advice.map(a => `
+          <div class="mbti-advice-item">
+            <span class="mbti-advice-icon">${a.icon}</span>
+            <span class="mbti-advice-text">${a.text}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ── 카테고리별 솔루션 렌더링 ────────────────────────────────
+function renderCategorySolutions() {
+  const container = document.getElementById('categorySolutionList');
+  if (!container) return;
+
+  let html = '';
+
+  CATEGORIES.forEach(cat => {
+    const catQs = QUESTIONS.filter(q => q.cat === cat.id);
+    const catYes = catQs.filter(q => answers[q.id] === '맞다').length;
+    const catMaybe = catQs.filter(q => answers[q.id] === '잘 모르겠다').length;
+    const catTotal = catQs.filter(q => answers[q.id] !== '해당없음').length;
+    const pct = catTotal > 0 ? Math.round((catYes / catTotal) * 100) : 0;
+
+    const level = pct >= 60 ? 'danger' : pct >= 30 ? 'warn' : 'good';
+    const levelLabel = pct >= 60 ? '위험' : pct >= 30 ? '주의' : '양호';
+    const levelColor = pct >= 60 ? '#EF4444' : pct >= 30 ? '#F59E0B' : '#22C55E';
+
+    const sol = CATEGORY_SOLUTIONS[cat.id];
+
+    // 해당 카테고리에서 '맞다'로 답한 문항들
+    const dangerQs = catQs.filter(q => answers[q.id] === '맞다');
+    const maybeQs  = catQs.filter(q => answers[q.id] === '잘 모르겠다');
+
+    // 솔루션 카드: 위험/주의 카테고리만 솔루션 펼침, 양호는 접힘
+    const isOpen = level !== 'good';
+
+    html += `
+      <div class="cat-sol-card ${level}" id="catSol-${cat.id}">
+        <!-- 카테고리 헤더 -->
+        <div class="cat-sol-header" onclick="toggleCatSol('${cat.id}')">
+          <div class="cat-sol-header-left">
+            <span class="cat-sol-icon" style="background:${cat.color}20;color:${cat.color}">
+              <i class="fas ${cat.icon}"></i>
+            </span>
+            <div>
+              <div class="cat-sol-name">${cat.label}</div>
+              <div class="cat-sol-stat">${catYes}/${catTotal} 개선 필요</div>
+            </div>
+          </div>
+          <div class="cat-sol-header-right">
+            <div class="cat-sol-pct-wrap">
+              <div class="cat-sol-pct" style="color:${levelColor}">${pct}%</div>
+              <div class="cat-sol-level-badge" style="background:${levelColor}20;color:${levelColor}">${levelLabel}</div>
+            </div>
+            <i class="fas fa-chevron-${isOpen ? 'up' : 'down'} cat-sol-chevron"></i>
+          </div>
+        </div>
+
+        <!-- 진행 바 -->
+        <div class="cat-sol-bar-wrap">
+          <div class="cat-sol-bar" style="width:${pct}%;background:${levelColor}"></div>
+        </div>
+
+        <!-- 펼쳐지는 솔루션 영역 -->
+        <div class="cat-sol-body" style="display:${isOpen ? 'block' : 'none'}">
+          ${sol ? `<div class="cat-sol-summary"><i class="fas fa-quote-left"></i> ${sol.summary}</div>` : ''}
+
+          ${dangerQs.length > 0 ? `
+            <div class="cat-sol-issues">
+              <div class="issues-heading danger-heading"><i class="fas fa-times-circle"></i> 개선이 필요한 항목 (${dangerQs.length}개)</div>
+              <ul class="issues-list">
+                ${dangerQs.map(q => `<li><span class="q-num-sm">Q${q.id}</span>${q.text}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          ${maybeQs.length > 0 ? `
+            <div class="cat-sol-issues">
+              <div class="issues-heading maybe-heading"><i class="fas fa-question-circle"></i> 확인이 필요한 항목 (${maybeQs.length}개)</div>
+              <ul class="issues-list maybe-list">
+                ${maybeQs.map(q => `<li><span class="q-num-sm maybe">Q${q.id}</span>${q.text}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          ${sol && sol.tips ? `
+            <div class="tips-wrap">
+              <div class="tips-heading"><i class="fas fa-lightbulb"></i> 솔루션</div>
+              <div class="tips-grid">
+                ${sol.tips.map(tip => `
+                  <div class="tip-card">
+                    <div class="tip-title">${tip.title}</div>
+                    <div class="tip-desc">${tip.desc}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          ${level === 'good' && dangerQs.length === 0 ? `
+            <div class="cat-sol-good-msg">
+              <i class="fas fa-check-circle"></i> 이 영역은 양호합니다! 현재 습관을 유지하세요.
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// 카테고리 솔루션 토글
+function toggleCatSol(catId) {
+  const card = document.getElementById(`catSol-${catId}`);
+  if (!card) return;
+  const body = card.querySelector('.cat-sol-body');
+  const chevron = card.querySelector('.cat-sol-chevron');
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? 'block' : 'none';
+  chevron.className = `fas fa-chevron-${isHidden ? 'up' : 'down'} cat-sol-chevron`;
 }
 
 // ============================================================
@@ -435,6 +597,7 @@ function retakeSurvey() {
   sessionId = generateSessionId();
   selectedExamType = null;
   selectedExamCategory = null;
+  selectedMbti = null;
 
   document.querySelectorAll('.question-card').forEach(c => {
     c.classList.remove('answered');
@@ -442,6 +605,7 @@ function retakeSurvey() {
   });
 
   // 인트로 초기화
+  document.querySelectorAll('.mbti-btn').forEach(b => b.classList.remove('selected'));
   document.querySelectorAll('.exam-type-btn').forEach(b => b.classList.remove('selected'));
   document.querySelectorAll('.exam-cat-btn').forEach(b => b.classList.remove('selected'));
   const selSummary = document.getElementById('selectionSummary');
