@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>수험생 학습 습관 자가진단 체크리스트</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+</head>
+<body>
+  <!-- 인트로 화면 -->
+  <div id="intro-screen" class="screen active">
+    <div class="intro-container">
+      <div class="intro-icon"><i class="fas fa-clipboard-check"></i></div>
+      <h1 class="intro-title">수험생 학습 습관<br/>자가진단 체크리스트</h1>
+      <p class="intro-desc">
+        나의 현재 공부 습관을 점검하고,<br/>
+        어떤 부분을 개선해야 하는지 확인해보세요.<br/>
+        각 항목에 대해 <strong>맞다 / 잘 모르겠다 / 아니다</strong> 중 하나를 선택해주세요.
+      </p>
+
+      <!-- 시험 유형 선택 -->
+      <div class="select-block">
+        <div class="select-label">
+          <i class="fas fa-pen-ruler"></i> 시험 유형을 선택해주세요 <span class="required">*</span>
+        </div>
+        <div class="exam-type-btns" id="examTypeBtns">
+          <button class="exam-type-btn" data-value="객관식" onclick="selectExamType('객관식')">
+            <i class="fas fa-check-square"></i>
+            <span class="exam-type-name">객관식</span>
+          </button>
+          <button class="exam-type-btn" data-value="논술형·주관식" onclick="selectExamType('논술형·주관식')">
+            <i class="fas fa-pen-nib"></i>
+            <span class="exam-type-name">논술형·주관식</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 시험 종류 선택 -->
+      <div class="select-block">
+        <div class="select-label">
+          <i class="fas fa-graduation-cap"></i> 시험 종류를 선택해주세요 <span class="required">*</span>
+        </div>
+        <div class="exam-category-grid" id="examCategoryGrid">
+          <!-- JS로 렌더링 -->
+        </div>
+      </div>
+
+      <!-- 선택 요약 배지 -->
+      <div class="selection-summary" id="selectionSummary" style="display:none;">
+        <i class="fas fa-check-circle"></i>
+        <span id="selectionText"></span>
+      </div>
+
+      <div class="intro-meta">
+        <span><i class="fas fa-list-ul"></i> 총 82문항</span>
+        <span><i class="fas fa-clock"></i> 약 5~10분 소요</span>
+        <span><i class="fas fa-lock"></i> 익명 응답</span>
+      </div>
+
+      <button class="btn-start" id="btnStart" onclick="startSurvey()" disabled>
+        진단 시작하기 <i class="fas fa-arrow-right"></i>
+      </button>
+      <p class="select-required-note" id="selectNote">* 시험 유형과 시험 종류를 모두 선택해야 시작할 수 있습니다.</p>
+      <a href="stats.html" class="btn-stats-link">
+        <i class="fas fa-chart-bar"></i> 전체 통계 보기
+      </a>
+    </div>
+  </div>
+
+  <!-- 설문 화면 -->
+  <div id="survey-screen" class="screen">
+    <div class="survey-wrapper">
+      <!-- 상단 헤더 -->
+      <div class="survey-header">
+        <div class="survey-title-row">
+          <span class="survey-logo"><i class="fas fa-clipboard-check"></i> 학습 습관 자가진단</span>
+          <div class="survey-header-right">
+            <span class="survey-exam-badge" id="surveyExamBadge"></span>
+            <a href="stats.html" class="btn-stats-sm"><i class="fas fa-chart-bar"></i> 통계</a>
+          </div>
+        </div>
+        <!-- 진행바 -->
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">0 / 82</div>
+      </div>
+
+      <!-- 카테고리 탭 -->
+      <div class="category-tabs" id="categoryTabs"></div>
+
+      <!-- 질문 목록 -->
+      <div class="questions-container" id="questionsContainer"></div>
+
+      <!-- 하단 버튼 -->
+      <div class="submit-area">
+        <div class="answer-summary" id="answerSummary">
+          <span class="summary-item answered"><i class="fas fa-check-circle"></i> 답변: <strong id="answeredCount">0</strong></span>
+          <span class="summary-item remaining"><i class="fas fa-circle"></i> 미답변: <strong id="remainingCount">82</strong></span>
+        </div>
+        <button class="btn-submit" id="submitBtn" onclick="submitSurvey()">
+          <i class="fas fa-paper-plane"></i> 진단 결과 제출하기
+        </button>
+        <p class="submit-note">* 모든 항목에 응답 후 제출이 가능합니다.<br/>객관식 시험 해당 없는 항목은 '해당없음'으로 선택해주세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 화면 -->
+  <div id="result-screen" class="screen">
+    <div class="result-container">
+      <div class="result-icon"><i class="fas fa-chart-pie"></i></div>
+      <h2 class="result-title">진단 완료!</h2>
+      <p class="result-subtitle">나의 학습 습관 진단 결과입니다</p>
+      <div class="result-exam-info-wrap">
+        <span class="result-exam-badge" id="resultExamInfo"></span>
+      </div>
+
+      <div class="result-score-card">
+        <div class="score-main">
+          <div class="score-label">위험 항목</div>
+          <div class="score-number" id="dangerCount">-</div>
+          <div class="score-unit">개</div>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-details">
+          <div class="score-detail-row">
+            <span class="dot yes"></span>
+            <span class="detail-label">맞다 (개선 필요)</span>
+            <span class="detail-val" id="yesCount">-</span>
+          </div>
+          <div class="score-detail-row">
+            <span class="dot maybe"></span>
+            <span class="detail-label">잘 모르겠다</span>
+            <span class="detail-val" id="maybeCount">-</span>
+          </div>
+          <div class="score-detail-row">
+            <span class="dot no"></span>
+            <span class="detail-label">아니다 (양호)</span>
+            <span class="detail-val" id="noCount">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 카테고리별 결과 -->
+      <div class="category-result" id="categoryResult"></div>
+
+      <!-- 위험 항목 리스트 -->
+      <div class="danger-list-wrap" id="dangerListWrap">
+        <h3 class="danger-list-title"><i class="fas fa-exclamation-triangle"></i> 개선이 필요한 항목</h3>
+        <ul class="danger-list" id="dangerList"></ul>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-retry" onclick="retakeSurvey()">
+          <i class="fas fa-redo"></i> 다시 진단하기
+        </button>
+        <a href="stats.html" class="btn-go-stats">
+          <i class="fas fa-chart-bar"></i> 전체 통계 보기
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/questions.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
