@@ -349,47 +349,38 @@ async function submitSurvey() {
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 저장 중...';
 
-  try {
-    const payload = {
-      session_id: sessionId,
-      exam_type: selectedExamType,
-      exam_category: selectedExamCategory,
-      mbti: selectedMbti,
-      submitted_at: new Date().toISOString(),
-    };
-    QUESTIONS.forEach(q => {
-      payload[`q${q.id}`] = answers[q.id];
-    });
+  // ── 저장 시도 (Apps Script URL이 설정된 경우만) ─────────
+  const apiUrl = typeof CONFIG !== 'undefined' ? CONFIG.APPS_SCRIPT_URL : '';
 
-    const resp = await fetch('tables/checklist_responses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+  if (apiUrl) {
+    try {
+      const payload = {
+        session_id: sessionId,
+        exam_type: selectedExamType,
+        exam_category: selectedExamCategory,
+        mbti: selectedMbti,
+        submitted_at: new Date().toISOString(),
+      };
+      QUESTIONS.forEach(q => { payload[`q${q.id}`] = answers[q.id]; });
 
-    if (!resp.ok) {
-      let errText = '';
-      try { errText = await resp.text(); } catch(_) {}
-      console.error('서버 응답 오류:', resp.status, errText);
-      throw new Error(`HTTP ${resp.status}: ${errText}`);
+      // Google Apps Script는 no-cors로 전송 (JSONP 방식)
+      await fetch(apiUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      // no-cors는 응답 확인 불가 → 일단 성공으로 처리
+    } catch (e) {
+      console.warn('데이터 저장 실패 (결과는 계속 표시):', e);
     }
-
-    // 저장 성공
-    showResult();
-  } catch (e) {
-    console.error('제출 오류:', e);
-    // 네트워크 오류 여부 확인
-    const isNetwork = e instanceof TypeError;
-    if (isNetwork) {
-      alert('네트워크 오류가 발생했습니다.\n인터넷 연결을 확인한 후 다시 시도해주세요.');
-    } else {
-      // 저장 실패해도 결과 화면은 보여줌 (오프라인 폴백)
-      console.warn('저장 실패, 결과 화면으로 진행합니다.');
-      showResult();
-    }
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 진단 결과 제출하기';
+  } else {
+    console.info('CONFIG.APPS_SCRIPT_URL 미설정 → 저장 건너뜀');
   }
+
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 진단 결과 제출하기';
+  showResult();
 }
 
 // ============================================================
@@ -421,6 +412,14 @@ function showResult() {
 
   // ── 카테고리별 솔루션 ─────────────────────────────────────
   renderCategorySolutions();
+
+  // ── 공유 섹션 확실히 표시 ─────────────────────────────────
+  const shareSection = document.getElementById('resultShareSection');
+  if (shareSection) shareSection.style.display = 'block';
+
+  // 공유 링크 미리보기 초기화
+  const shareLinkPreview = document.getElementById('shareLinkPreview');
+  if (shareLinkPreview) shareLinkPreview.style.display = 'none';
 
   showScreen('result-screen');
 }

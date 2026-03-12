@@ -85,51 +85,79 @@ function applyFiltersAndRender() {
 }
 
 // ============================================================
-// 데이터 로드
+// 데이터 로드 (Google Apps Script 또는 로컬 없음 처리)
 // ============================================================
 async function loadStats() {
   showLoading(true);
   const refreshIcon = document.getElementById('refreshIcon');
   if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
+  const apiUrl = typeof CONFIG !== 'undefined' ? CONFIG.APPS_SCRIPT_URL : '';
+
   try {
-    let page = 1;
-    const limit = 100;
-    allData = [];
-
-    // 첫 번째 페이지 먼저 로드해 total 확인
-    const firstResp = await fetch(`tables/checklist_responses?page=1&limit=${limit}`);
-    if (!firstResp.ok) throw new Error('HTTP ' + firstResp.status);
-    const firstJson = await firstResp.json();
-    const total = firstJson.total || 0;
-    allData = allData.concat(firstJson.data || []);
-
-    // 2페이지 이상이면 추가 로드
-    page = 2;
-    while (allData.length < total) {
-      const resp = await fetch(`tables/checklist_responses?page=${page}&limit=${limit}`);
-      if (!resp.ok) break;
-      const json = await resp.json();
-      const chunk = json.data || [];
-      if (chunk.length === 0) break;
-      allData = allData.concat(chunk);
-      page++;
+    if (!apiUrl) {
+      // Apps Script URL 미설정 → 빈 데이터로 표시
+      throw new Error('APPS_SCRIPT_URL_NOT_SET');
     }
+
+    // GET 요청으로 전체 데이터 가져오기
+    const resp = await fetch(`${apiUrl}?action=getAll`, { mode: 'cors' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+    const json = await resp.json();
+    allData = Array.isArray(json.data) ? json.data : [];
 
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('statsContent').style.display = 'block';
     document.getElementById('errorState').style.display = 'none';
 
     applyFiltersAndRender();
+
   } catch (e) {
     console.error('통계 로드 오류:', e);
     document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('errorState').style.display = 'flex';
-    const errMsg = document.getElementById('errorMsg');
-    if (errMsg) errMsg.textContent = '데이터를 불러오지 못했습니다. (' + e.message + ')';
+
+    if (e.message === 'APPS_SCRIPT_URL_NOT_SET') {
+      // URL 미설정 → 안내 메시지로 표시
+      document.getElementById('statsContent').style.display = 'block';
+      document.getElementById('errorState').style.display = 'none';
+      allData = [];
+      applyFiltersAndRender();
+      // 상단에 설정 안내 배너 표시
+      showSetupBanner();
+    } else {
+      document.getElementById('errorState').style.display = 'flex';
+      const errMsg = document.getElementById('errorMsg');
+      if (errMsg) errMsg.textContent = '데이터를 불러오지 못했습니다. (' + e.message + ')';
+    }
   }
 
   if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+}
+
+function showSetupBanner() {
+  const existing = document.getElementById('setupBanner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'setupBanner';
+  banner.style.cssText = `
+    background:#FFF7ED; border:1.5px solid #FED7AA; border-radius:10px;
+    padding:16px 20px; margin-bottom:20px; display:flex; align-items:flex-start; gap:14px;
+  `;
+  banner.innerHTML = `
+    <i class="fas fa-info-circle" style="color:#F97316;font-size:1.3rem;margin-top:2px;flex-shrink:0;"></i>
+    <div>
+      <strong style="color:#C2410C;font-size:.95rem;">통계 기능 설정이 필요합니다</strong>
+      <p style="color:#92400E;font-size:.82rem;margin:6px 0 0;line-height:1.6;">
+        GitHub Pages에서 통계를 보려면 Google Sheets 연동이 필요합니다.<br/>
+        <code style="background:#FEF3C7;padding:2px 6px;border-radius:4px;">js/config.js</code>에
+        <code style="background:#FEF3C7;padding:2px 6px;border-radius:4px;">APPS_SCRIPT_URL</code>을 설정해주세요.
+        &nbsp;<a href="GITHUB_SETUP.md" style="color:#F97316;font-weight:700;text-decoration:underline;" target="_blank">설정 가이드 보기 →</a>
+      </p>
+    </div>
+  `;
+  const content = document.getElementById('statsContent');
+  if (content) content.insertBefore(banner, content.firstChild);
 }
 
 function showLoading(v) {
