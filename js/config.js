@@ -11,8 +11,8 @@ const CONFIG = {
   // 예시: 'https://script.google.com/macros/s/AKfy.../exec'
   // 미설정 시: 결과는 볼 수 있지만 DB 저장/통계 기능 비활성화
   // ─────────────────────────────────────────────────────────
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxWEdvrsWioBxlsPEhtmQ98v4M-kpGJ-PE6pK9kcWna65R4IUIDRWKmUyXDWvXYoYpufQ/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzoKx1w6fPuLWBPRbsQwAz4WiFeZzD4g_mPyyki8Wp1AMo_kL_w4K9r_FyJAjxUTZfxXQ/exec',
 
   // 앱 이름 (선택)
-  APP_NAME: '수험생 학습 습관 자가진단',
+  APP_NAME: '규토리얼 학습 자가진단',
 };
