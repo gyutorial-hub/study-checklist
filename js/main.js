@@ -598,6 +598,79 @@ function toggleCatSol(catId) {
 }
 
 // ============================================================
+// 공유 URL 생성
+// ============================================================
+function buildShareUrl() {
+  const payload = {
+    mbti: selectedMbti,
+    examType: selectedExamType,
+    examCategory: selectedExamCategory,
+    answers: answers,
+    savedAt: new Date().toISOString(),
+  };
+  const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+  const base = window.location.href.replace(/\/[^/]*$/, '/');
+  return `${base}result.html?d=${encoded}`;
+}
+
+// ── 결과 링크 복사 ───────────────────────────────────────────
+function copyResultLink() {
+  const url = buildShareUrl();
+
+  // 링크 미리보기 표시
+  const preview = document.getElementById('shareLinkPreview');
+  const input = document.getElementById('shareLinkInput');
+  if (preview && input) {
+    input.value = url;
+    preview.style.display = 'flex';
+  }
+
+  // 클립보드 복사
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('✅ 링크가 클립보드에 복사되었습니다!');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✅ 링크가 복사되었습니다!');
+  });
+}
+
+function copyShareInputLink() {
+  const input = document.getElementById('shareLinkInput');
+  if (!input) return;
+  navigator.clipboard.writeText(input.value).then(() => {
+    showToast('✅ 링크가 복사되었습니다!');
+  }).catch(() => {
+    input.select();
+    document.execCommand('copy');
+    showToast('✅ 링크가 복사되었습니다!');
+  });
+}
+
+// ── PDF 저장 ─────────────────────────────────────────────────
+function saveResultPdf() {
+  // 모든 카테고리 펼치기
+  document.querySelectorAll('.cat-sol-body').forEach(b => b.style.display = 'block');
+  document.querySelectorAll('.cat-sol-chevron').forEach(c => {
+    c.className = 'fas fa-chevron-up cat-sol-chevron';
+  });
+  showToast('📄 인쇄 창에서 "PDF로 저장"을 선택하세요');
+  setTimeout(() => window.print(), 500);
+}
+
+// ── 토스트 알림 ──────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ============================================================
 // 다시 진단하기
 // ============================================================
 function retakeSurvey() {

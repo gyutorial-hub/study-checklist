@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>학습 습관 자가진단 결과 | 수험생 자가진단 체크리스트</title>
+
+  <!-- OG / SNS 공유용 메타 태그 (JS로 동적 업데이트) -->
+  <meta property="og:title" id="ogTitle" content="나의 학습 습관 자가진단 결과" />
+  <meta property="og:description" id="ogDesc" content="수험생 학습 습관 자가진단 체크리스트 결과를 확인해보세요." />
+  <meta property="og:type" content="website" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/print.css" media="print" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+
+  <style>
+    /* ── 공유 페이지 전용 레이아웃 ── */
+    body { background: var(--gray-50); }
+
+    .share-topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .share-topbar-left {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .9rem; font-weight: 700; color: var(--gray-700);
+    }
+    .share-topbar-left i { color: var(--primary); font-size: 1.1rem; }
+    .share-topbar-right { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* 공유 액션 버튼 */
+    .share-action-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-family: inherit; font-size: .85rem; font-weight: 700;
+      cursor: pointer; border: none; transition: all .2s;
+      white-space: nowrap;
+    }
+    .share-action-btn.copy-link {
+      background: var(--gray-100); color: var(--gray-700);
+      border: 1.5px solid var(--gray-200);
+    }
+    .share-action-btn.copy-link:hover { background: var(--gray-200); }
+    .share-action-btn.save-pdf {
+      background: linear-gradient(135deg, #EF4444, #F97316);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(239,68,68,.3);
+    }
+    .share-action-btn.save-pdf:hover { opacity: .9; transform: translateY(-1px); }
+    .share-action-btn.go-home {
+      background: var(--primary); color: #fff;
+      box-shadow: 0 2px 8px rgba(79,126,247,.25);
+    }
+    .share-action-btn.go-home:hover { background: var(--primary-dark); }
+
+    /* 토스트 알림 */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1E293B; color: #fff;
+      padding: 12px 24px; border-radius: 24px;
+      font-size: .88rem; font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      z-index: 9999; opacity: 0;
+      transition: all .3s cubic-bezier(.34,1.56,.64,1);
+      display: flex; align-items: center; gap: 8px;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+
+    /* 로딩/에러 */
+    .share-loading {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 16px; min-height: 60vh;
+      color: var(--gray-400);
+    }
+    .share-error {
+      display: none; flex-direction: column; align-items: center;
+      justify-content: center; gap: 16px; min-height: 60vh;
+      color: var(--gray-400); text-align: center;
+    }
+    .share-error i { font-size: 2.5rem; color: var(--gray-300); }
+    .share-error h3 { color: var(--gray-600); font-size: 1.1rem; }
+    .share-error p { font-size: .9rem; line-height: 1.6; max-width: 320px; }
+    .share-error a {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 11px 22px; background: var(--primary); color: #fff;
+      border-radius: var(--radius-sm); font-weight: 700; font-size: .9rem;
+      margin-top: 8px;
+    }
+
+    /* PDF 저장 시 페이지 헤더 (화면에서는 숨김) */
+    .pdf-header { display: none; }
+
+    /* 결과 컨텐츠 래퍼 */
+    #resultContent { display: none; }
+    #resultContent.loaded { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 바 -->
+  <div class="share-topbar" id="shareTopbar" style="display:none;">
+    <div class="share-topbar-left">
+      <i class="fas fa-clipboard-check"></i>
+      <span>학습 습관 자가진단 결과</span>
+    </div>
+    <div class="share-topbar-right">
+      <button class="share-action-btn copy-link" onclick="copyShareLink()">
+        <i class="fas fa-link"></i> 링크 복사
+      </button>
+      <button class="share-action-btn save-pdf" onclick="savePdf()">
+        <i class="fas fa-file-pdf"></i> PDF 저장
+      </button>
+      <a href="index.html" class="share-action-btn go-home">
+        <i class="fas fa-redo"></i> 나도 진단하기
+      </a>
+    </div>
+  </div>
+
+  <!-- 로딩 -->
+  <div class="share-loading" id="shareLoading">
+    <i class="fas fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i>
+    <p style="font-size:.9rem;color:var(--gray-400)">결과를 불러오는 중...</p>
+  </div>
+
+  <!-- 에러 -->
+  <div class="share-error" id="shareError">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h3>결과를 불러올 수 없습니다</h3>
+    <p>링크가 만료되었거나 올바르지 않은 주소입니다.<br/>새로 진단을 시작해보세요.</p>
+    <a href="index.html"><i class="fas fa-clipboard-check"></i> 진단 시작하기</a>
+  </div>
+
+  <!-- PDF 전용 헤더 (print 시에만 표시) -->
+  <div class="pdf-header" id="pdfHeader">
+    <div class="pdf-header-inner">
+      <div class="pdf-logo"><i class="fas fa-clipboard-check"></i> 수험생 학습 습관 자가진단</div>
+      <div class="pdf-date" id="pdfDate"></div>
+    </div>
+  </div>
+
+  <!-- 결과 컨텐츠 (JS로 채움) -->
+  <div id="resultContent">
+
+    <div class="result-wrap">
+
+      <!-- 히어로 -->
+      <div class="result-hero">
+        <div class="result-hero-inner">
+          <div class="result-hero-icon"><i class="fas fa-chart-pie"></i></div>
+          <h2 class="result-hero-title">진단 완료!</h2>
+          <p class="result-hero-sub">나의 학습 습관 자가진단 결과입니다</p>
+          <div class="result-exam-info-wrap">
+            <span class="result-exam-badge" id="resultExamInfo"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 스코어 -->
+      <div class="result-section">
+        <div class="result-score-grid">
+          <div class="score-card danger-card">
+            <div class="score-card-icon"><i class="fas fa-exclamation-circle"></i></div>
+            <div class="score-card-num" id="dangerCount">-</div>
+            <div class="score-card-label">개선 필요</div>
+          </div>
+          <div class="score-card maybe-card">
+            <div class="score-card-icon"><i class="fas fa-question-circle"></i></div>
+            <div class="score-card-num" id="maybeCount">-</div>
+            <div class="score-card-label">잘 모르겠다</div>
+          </div>
+          <div class="score-card good-card">
+            <div class="score-card-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="score-card-num" id="noCount">-</div>
+            <div class="score-card-label">양호</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MBTI 조언 -->
+      <div class="result-section" id="mbtiAdviceSection">
+        <div class="section-header">
+          <i class="fas fa-user-circle"></i>
+          <h3 id="mbtiAdviceTitle">MBTI 맞춤 조언</h3>
+        </div>
+        <div class="mbti-advice-card" id="mbtiAdviceCard"></div>
+      </div>
+
+      <!-- 카테고리별 솔루션 -->
+      <div class="result-section" id="categorySolutionSection">
+        <div class="section-header">
+          <i class="fas fa-lightbulb"></i>
+          <h3>카테고리별 진단 &amp; 솔루션</h3>
+        </div>
+        <div id="categorySolutionList"></div>
+      </div>
+
+      <!-- 하단 진단하기 CTA -->
+      <div class="share-cta-wrap">
+        <div class="share-cta-card">
+          <div class="share-cta-text">
+            <i class="fas fa-clipboard-check"></i>
+            <div>
+              <strong>나도 진단해보기</strong>
+              <p>나만의 학습 습관을 점검하고 맞춤 솔루션을 받아보세요</p>
+            </div>
+          </div>
+          <a href="index.html" class="share-cta-btn">
+            진단 시작하기 <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="toast" id="toast"></div>
+
+  <script src="js/questions.js"></script>
+  <script src="js/solutions.js"></script>
+  <script>
+  // ============================================================
+  // result.html 전용 로직
+  // ============================================================
+
+  // main.js의 showResult/renderMbtiAdvice/renderCategorySolutions를
+  // 이 페이지에서도 사용하기 위해 필요한 전역 변수 설정
+  let answers = {};
+  let selectedMbti = null;
+  let selectedExamType = null;
+  let selectedExamCategory = null;
+
+  // ── URL 파라미터 파싱 ───────────────────────────────────────
+  function parseShareParams() {
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get('d');
+    if (!encoded) return null;
+    try {
+      const decoded = decodeURIComponent(atob(encoded));
+      return JSON.parse(decoded);
+    } catch(e) {
+      console.error('파라미터 파싱 실패:', e);
+      return null;
+    }
+  }
+
+  // ── 결과 데이터 복원 및 렌더 ────────────────────────────────
+  function restoreAndRender(data) {
+    selectedMbti = data.mbti || null;
+    selectedExamType = data.examType || null;
+    selectedExamCategory = data.examCategory || null;
+    answers = data.answers || {};
+
+    // 스코어 집계
+    let yesCount = 0, maybeCount = 0, noCount = 0;
+    QUESTIONS.forEach(q => {
+      const ans = answers[q.id];
+      if (ans === '맞다') yesCount++;
+      else if (ans === '잘 모르겠다') maybeCount++;
+      else if (ans === '아니다') noCount++;
+    });
+
+    document.getElementById('dangerCount').textContent = yesCount;
+    document.getElementById('maybeCount').textContent = maybeCount;
+    document.getElementById('noCount').textContent = noCount;
+
+    // 배지
+    const badge = document.getElementById('resultExamInfo');
+    if (badge) badge.textContent = [selectedMbti, selectedExamCategory, selectedExamType].filter(Boolean).join(' · ');
+
+    // MBTI 조언
+    renderMbtiAdvice();
+    // 카테고리 솔루션
+    renderCategorySolutions();
+
+    // PDF 날짜
+    const pdfDateEl = document.getElementById('pdfDate');
+    if (pdfDateEl) {
+      const d = data.savedAt ? new Date(data.savedAt) : new Date();
+      pdfDateEl.textContent = d.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' }) + ' 진단';
+    }
+
+    // OG 메타 업데이트
+    const ogTitle = document.getElementById('ogTitle');
+    const ogDesc = document.getElementById('ogDesc');
+    if (ogTitle) ogTitle.setAttribute('content', `${selectedMbti} ${selectedExamCategory} 학습 습관 진단 결과`);
+    if (ogDesc) ogDesc.setAttribute('content', `개선 필요 ${yesCount}개 · 양호 ${noCount}개 · MBTI ${selectedMbti} 맞춤 솔루션 포함`);
+  }
+
+  // ── main.js의 헬퍼 함수들 (result.html에서 재사용) ──────────
+  function renderMbtiAdvice() {
+    const profile = MBTI_PROFILES[selectedMbti];
+    if (!profile) return;
+    const titleEl = document.getElementById('mbtiAdviceTitle');
+    if (titleEl) titleEl.textContent = `${selectedMbti} (${profile.nickname}) 맞춤 학습 조언`;
+    const card = document.getElementById('mbtiAdviceCard');
+    if (!card) return;
+    const groupColors = {
+      analyst:  { bg:'#EEF2FF', border:'#6366F1', badge:'#6366F1' },
+      diplomat: { bg:'#F0FDF4', border:'#22C55E', badge:'#22C55E' },
+      sentinel: { bg:'#FFF7ED', border:'#F97316', badge:'#F97316' },
+      explorer: { bg:'#FFF1F2', border:'#F43F5E', badge:'#F43F5E' },
+    };
+    const gc = groupColors[profile.group] || groupColors.analyst;
+    const groupLabel = { analyst:'분석가형', diplomat:'외교관형', sentinel:'관리자형', explorer:'탐험가형' };
+    card.innerHTML = `
+      <div class="mbti-card-inner" style="background:${gc.bg};border-color:${gc.border}">
+        <div class="mbti-card-head">
+          <div class="mbti-card-emoji">${profile.emoji}</div>
+          <div class="mbti-card-info">
+            <div class="mbti-card-type">
+              <span class="mbti-type-badge" style="background:${gc.badge}">${selectedMbti}</span>
+              <span class="mbti-group-badge">${groupLabel[profile.group]}</span>
+            </div>
+            <div class="mbti-card-trait">${profile.studyTrait}</div>
+          </div>
+        </div>
+        <div class="mbti-sw-grid">
+          <div class="mbti-sw-block strength">
+            <div class="mbti-sw-label"><i class="fas fa-thumbs-up"></i> 강점</div>
+            <ul>${profile.strengths.map(s=>`<li>${s}</li>`).join('')}</ul>
+          </div>
+          <div class="mbti-sw-block weakness">
+            <div class="mbti-sw-label"><i class="fas fa-exclamation-triangle"></i> 약점</div>
+            <ul>${profile.weaknesses.map(w=>`<li>${w}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <div class="mbti-advice-list">
+          <div class="mbti-advice-heading"><i class="fas fa-lightbulb"></i> 맞춤 조언</div>
+          ${profile.advice.map(a=>`
+            <div class="mbti-advice-item">
+              <span class="mbti-advice-icon">${a.icon}</span>
+              <span class="mbti-advice-text">${a.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  function renderCategorySolutions() {
+    const container = document.getElementById('categorySolutionList');
+    if (!container) return;
+    let html = '';
+    CATEGORIES.forEach(cat => {
+      const catQs = QUESTIONS.filter(q => q.cat === cat.id);
+      const catYes = catQs.filter(q => answers[q.id] === '맞다').length;
+      const catMaybe = catQs.filter(q => answers[q.id] === '잘 모르겠다').length;
+      const catTotal = catQs.filter(q => answers[q.id] !== '해당없음').length;
+      const pct = catTotal > 0 ? Math.round((catYes / catTotal) * 100) : 0;
+      const level = pct >= 60 ? 'danger' : pct >= 30 ? 'warn' : 'good';
+      const levelLabel = pct >= 60 ? '위험' : pct >= 30 ? '주의' : '양호';
+      const levelColor = pct >= 60 ? '#EF4444' : pct >= 30 ? '#F59E0B' : '#22C55E';
+      const sol = CATEGORY_SOLUTIONS[cat.id];
+      const dangerQs = catQs.filter(q => answers[q.id] === '맞다');
+      const maybeQs  = catQs.filter(q => answers[q.id] === '잘 모르겠다');
+      const isOpen = level !== 'good';
+      html += `
+        <div class="cat-sol-card ${level}" id="catSol-${cat.id}">
+          <div class="cat-sol-header" onclick="toggleCatSol('${cat.id}')">
+            <div class="cat-sol-header-left">
+              <span class="cat-sol-icon" style="background:${cat.color}20;color:${cat.color}"><i class="fas ${cat.icon}"></i></span>
+              <div>
+                <div class="cat-sol-name">${cat.label}</div>
+                <div class="cat-sol-stat">${catYes}/${catTotal} 개선 필요</div>
+              </div>
+            </div>
+            <div class="cat-sol-header-right">
+              <div class="cat-sol-pct-wrap">
+                <div class="cat-sol-pct" style="color:${levelColor}">${pct}%</div>
+                <div class="cat-sol-level-badge" style="background:${levelColor}20;color:${levelColor}">${levelLabel}</div>
+              </div>
+              <i class="fas fa-chevron-${isOpen?'up':'down'} cat-sol-chevron"></i>
+            </div>
+          </div>
+          <div class="cat-sol-bar-wrap"><div class="cat-sol-bar" style="width:${pct}%;background:${levelColor}"></div></div>
+          <div class="cat-sol-body" style="display:${isOpen?'block':'none'}">
+            ${sol?`<div class="cat-sol-summary"><i class="fas fa-quote-left"></i> ${sol.summary}</div>`:''}
+            ${dangerQs.length>0?`
+              <div class="cat-sol-issues">
+                <div class="issues-heading danger-heading"><i class="fas fa-times-circle"></i> 개선이 필요한 항목 (${dangerQs.length}개)</div>
+                <ul class="issues-list">${dangerQs.map(q=>`<li><span class="q-num-sm">Q${q.id}</span>${q.text}</li>`).join('')}</ul>
+              </div>`:''}
+            ${maybeQs.length>0?`
+              <div class="cat-sol-issues">
+                <div class="issues-heading maybe-heading"><i class="fas fa-question-circle"></i> 확인이 필요한 항목 (${maybeQs.length}개)</div>
+                <ul class="issues-list maybe-list">${maybeQs.map(q=>`<li><span class="q-num-sm maybe">Q${q.id}</span>${q.text}</li>`).join('')}</ul>
+              </div>`:''}
+            ${sol&&sol.tips?`
+              <div class="tips-wrap">
+                <div class="tips-heading"><i class="fas fa-lightbulb"></i> 솔루션</div>
+                <div class="tips-grid">${sol.tips.map(tip=>`
+                  <div class="tip-card">
+                    <div class="tip-title">${tip.title}</div>
+                    <div class="tip-desc">${tip.desc}</div>
+                  </div>`).join('')}
+                </div>
+              </div>`:''}
+            ${level==='good'&&dangerQs.length===0?`<div class="cat-sol-good-msg"><i class="fas fa-check-circle"></i> 이 영역은 양호합니다! 현재 습관을 유지하세요.</div>`:''}
+          </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+  }
+
+  function toggleCatSol(catId) {
+    const card = document.getElementById(`catSol-${catId}`);
+    if (!card) return;
+    const body = card.querySelector('.cat-sol-body');
+    const chevron = card.querySelector('.cat-sol-chevron');
+    const isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? 'block' : 'none';
+    chevron.className = `fas fa-chevron-${isHidden?'up':'down'} cat-sol-chevron`;
+  }
+
+  // ── 링크 복사 ────────────────────────────────────────────────
+  function copyShareLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      showToast('✅ 링크가 클립보드에 복사되었습니다!');
+    }).catch(() => {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('✅ 링크가 복사되었습니다!');
+    });
+  }
+
+  // ── PDF 저장 ─────────────────────────────────────────────────
+  function savePdf() {
+    // 모든 카테고리 카드 펼치기
+    document.querySelectorAll('.cat-sol-body').forEach(b => b.style.display = 'block');
+    document.querySelectorAll('.cat-sol-chevron').forEach(c => c.className = 'fas fa-chevron-up cat-sol-chevron');
+
+    showToast('📄 인쇄 창에서 PDF로 저장하세요 (대상: PDF로 저장)');
+    setTimeout(() => window.print(), 400);
+  }
+
+  // ── 토스트 ────────────────────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── 초기화 ────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const data = parseShareParams();
+
+    document.getElementById('shareLoading').style.display = 'none';
+
+    if (!data || !data.mbti || !data.answers) {
+      document.getElementById('shareError').style.display = 'flex';
+      return;
+    }
+
+    document.getElementById('shareTopbar').style.display = 'flex';
+    document.getElementById('resultContent').classList.add('loaded');
+    restoreAndRender(data);
+  });
+  </script>
+</body>
+</html>

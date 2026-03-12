@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>수험생 학습 습관 자가진단 체크리스트</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/print.css" media="print" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
 </head>
@@ -196,7 +197,27 @@
         </div>
       </div>
 
-      <!-- ⑤ 액션 버튼 -->
+      <!-- ⑤ 공유 / PDF 저장 -->
+      <div class="result-section result-share-section" id="resultShareSection">
+        <div class="share-btn-group">
+          <button class="share-btn copy-link-btn" onclick="copyResultLink()">
+            <i class="fas fa-link"></i>
+            <span>링크 공유</span>
+            <small>결과 페이지 URL 복사</small>
+          </button>
+          <button class="share-btn pdf-btn" onclick="saveResultPdf()">
+            <i class="fas fa-file-pdf"></i>
+            <span>PDF 저장</span>
+            <small>인쇄 → PDF로 저장</small>
+          </button>
+        </div>
+        <div class="share-link-preview" id="shareLinkPreview" style="display:none;">
+          <input type="text" id="shareLinkInput" readonly />
+          <button onclick="copyShareInputLink()"><i class="fas fa-copy"></i></button>
+        </div>
+      </div>
+
+      <!-- ⑥ 액션 버튼 -->
       <div class="result-actions">
         <button class="btn-retry" onclick="retakeSurvey()">
           <i class="fas fa-redo"></i> 다시 진단하기
@@ -207,6 +228,9 @@
       </div>
     </div>
   </div>
+
+  <!-- 토스트 알림 -->
+  <div class="toast" id="toast"></div>
 
   <script src="js/questions.js"></script>
   <script src="js/solutions.js"></script>
