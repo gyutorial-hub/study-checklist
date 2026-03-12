@@ -89,21 +89,30 @@ function applyFiltersAndRender() {
 // ============================================================
 async function loadStats() {
   showLoading(true);
-  document.getElementById('refreshIcon').classList.add('fa-spin');
+  const refreshIcon = document.getElementById('refreshIcon');
+  if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
   try {
     let page = 1;
     const limit = 100;
-    let total = Infinity;
     allData = [];
 
+    // 첫 번째 페이지 먼저 로드해 total 확인
+    const firstResp = await fetch(`tables/checklist_responses?page=1&limit=${limit}`);
+    if (!firstResp.ok) throw new Error('HTTP ' + firstResp.status);
+    const firstJson = await firstResp.json();
+    const total = firstJson.total || 0;
+    allData = allData.concat(firstJson.data || []);
+
+    // 2페이지 이상이면 추가 로드
+    page = 2;
     while (allData.length < total) {
       const resp = await fetch(`tables/checklist_responses?page=${page}&limit=${limit}`);
-      if (!resp.ok) throw new Error('fetch error');
+      if (!resp.ok) break;
       const json = await resp.json();
-      total = json.total;
-      allData = allData.concat(json.data);
-      if (json.data.length < limit) break;
+      const chunk = json.data || [];
+      if (chunk.length === 0) break;
+      allData = allData.concat(chunk);
       page++;
     }
 
@@ -113,11 +122,14 @@ async function loadStats() {
 
     applyFiltersAndRender();
   } catch (e) {
+    console.error('통계 로드 오류:', e);
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('errorState').style.display = 'flex';
+    const errMsg = document.getElementById('errorMsg');
+    if (errMsg) errMsg.textContent = '데이터를 불러오지 못했습니다. (' + e.message + ')';
   }
 
-  document.getElementById('refreshIcon').classList.remove('fa-spin');
+  if (refreshIcon) refreshIcon.classList.remove('fa-spin');
 }
 
 function showLoading(v) {

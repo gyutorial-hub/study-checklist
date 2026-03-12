@@ -47,6 +47,14 @@ function selectMbti(value) {
   document.querySelectorAll('.mbti-btn').forEach(btn => {
     btn.classList.toggle('selected', btn.dataset.value === value);
   });
+  // 선택 표시 업데이트
+  const display = document.getElementById('mbtiSelectedDisplay');
+  const text = document.getElementById('mbtiSelectedText');
+  if (display && text) {
+    const profile = typeof MBTI_PROFILES !== 'undefined' ? MBTI_PROFILES[value] : null;
+    text.textContent = profile ? `${value} (${profile.nickname})` : value;
+    display.style.display = 'flex';
+  }
   updateStartButton();
   updateSelectionSummary();
 }
@@ -606,6 +614,8 @@ function retakeSurvey() {
 
   // 인트로 초기화
   document.querySelectorAll('.mbti-btn').forEach(b => b.classList.remove('selected'));
+  const mbtiDisplay = document.getElementById('mbtiSelectedDisplay');
+  if (mbtiDisplay) mbtiDisplay.style.display = 'none';
   document.querySelectorAll('.exam-type-btn').forEach(b => b.classList.remove('selected'));
   document.querySelectorAll('.exam-cat-btn').forEach(b => b.classList.remove('selected'));
   const selSummary = document.getElementById('selectionSummary');

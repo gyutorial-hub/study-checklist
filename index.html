@@ -25,43 +25,26 @@
         <div class="select-label">
           <i class="fas fa-user-circle"></i> 나의 MBTI를 선택해주세요 <span class="required">*</span>
         </div>
-        <div class="mbti-group-wrap" id="mbtiGroupWrap">
-          <div class="mbti-group">
-            <div class="mbti-group-label analyst">분석가형</div>
-            <div class="mbti-row">
-              <button class="mbti-btn analyst" data-value="INTJ" onclick="selectMbti('INTJ')">INTJ<span class="mbti-nick">전략가</span></button>
-              <button class="mbti-btn analyst" data-value="INTP" onclick="selectMbti('INTP')">INTP<span class="mbti-nick">논리학자</span></button>
-              <button class="mbti-btn analyst" data-value="ENTJ" onclick="selectMbti('ENTJ')">ENTJ<span class="mbti-nick">통솔자</span></button>
-              <button class="mbti-btn analyst" data-value="ENTP" onclick="selectMbti('ENTP')">ENTP<span class="mbti-nick">변론가</span></button>
-            </div>
-          </div>
-          <div class="mbti-group">
-            <div class="mbti-group-label diplomat">외교관형</div>
-            <div class="mbti-row">
-              <button class="mbti-btn diplomat" data-value="INFJ" onclick="selectMbti('INFJ')">INFJ<span class="mbti-nick">옹호자</span></button>
-              <button class="mbti-btn diplomat" data-value="INFP" onclick="selectMbti('INFP')">INFP<span class="mbti-nick">중재자</span></button>
-              <button class="mbti-btn diplomat" data-value="ENFJ" onclick="selectMbti('ENFJ')">ENFJ<span class="mbti-nick">선도자</span></button>
-              <button class="mbti-btn diplomat" data-value="ENFP" onclick="selectMbti('ENFP')">ENFP<span class="mbti-nick">활동가</span></button>
-            </div>
-          </div>
-          <div class="mbti-group">
-            <div class="mbti-group-label sentinel">관리자형</div>
-            <div class="mbti-row">
-              <button class="mbti-btn sentinel" data-value="ISTJ" onclick="selectMbti('ISTJ')">ISTJ<span class="mbti-nick">현실주의자</span></button>
-              <button class="mbti-btn sentinel" data-value="ISFJ" onclick="selectMbti('ISFJ')">ISFJ<span class="mbti-nick">수호자</span></button>
-              <button class="mbti-btn sentinel" data-value="ESTJ" onclick="selectMbti('ESTJ')">ESTJ<span class="mbti-nick">경영자</span></button>
-              <button class="mbti-btn sentinel" data-value="ESFJ" onclick="selectMbti('ESFJ')">ESFJ<span class="mbti-nick">집정관</span></button>
-            </div>
-          </div>
-          <div class="mbti-group">
-            <div class="mbti-group-label explorer">탐험가형</div>
-            <div class="mbti-row">
-              <button class="mbti-btn explorer" data-value="ISTP" onclick="selectMbti('ISTP')">ISTP<span class="mbti-nick">장인</span></button>
-              <button class="mbti-btn explorer" data-value="ISFP" onclick="selectMbti('ISFP')">ISFP<span class="mbti-nick">모험가</span></button>
-              <button class="mbti-btn explorer" data-value="ESTP" onclick="selectMbti('ESTP')">ESTP<span class="mbti-nick">사업가</span></button>
-              <button class="mbti-btn explorer" data-value="ESFP" onclick="selectMbti('ESFP')">ESFP<span class="mbti-nick">연예인</span></button>
-            </div>
-          </div>
+        <div class="mbti-flat-grid" id="mbtiGroupWrap">
+          <button class="mbti-btn analyst" data-value="INTJ" onclick="selectMbti('INTJ')">INTJ<span class="mbti-nick">전략가</span></button>
+          <button class="mbti-btn analyst" data-value="INTP" onclick="selectMbti('INTP')">INTP<span class="mbti-nick">논리학자</span></button>
+          <button class="mbti-btn analyst" data-value="ENTJ" onclick="selectMbti('ENTJ')">ENTJ<span class="mbti-nick">통솔자</span></button>
+          <button class="mbti-btn analyst" data-value="ENTP" onclick="selectMbti('ENTP')">ENTP<span class="mbti-nick">변론가</span></button>
+          <button class="mbti-btn diplomat" data-value="INFJ" onclick="selectMbti('INFJ')">INFJ<span class="mbti-nick">옹호자</span></button>
+          <button class="mbti-btn diplomat" data-value="INFP" onclick="selectMbti('INFP')">INFP<span class="mbti-nick">중재자</span></button>
+          <button class="mbti-btn diplomat" data-value="ENFJ" onclick="selectMbti('ENFJ')">ENFJ<span class="mbti-nick">선도자</span></button>
+          <button class="mbti-btn diplomat" data-value="ENFP" onclick="selectMbti('ENFP')">ENFP<span class="mbti-nick">활동가</span></button>
+          <button class="mbti-btn sentinel" data-value="ISTJ" onclick="selectMbti('ISTJ')">ISTJ<span class="mbti-nick">현실주의자</span></button>
+          <button class="mbti-btn sentinel" data-value="ISFJ" onclick="selectMbti('ISFJ')">ISFJ<span class="mbti-nick">수호자</span></button>
+          <button class="mbti-btn sentinel" data-value="ESTJ" onclick="selectMbti('ESTJ')">ESTJ<span class="mbti-nick">경영자</span></button>
+          <button class="mbti-btn sentinel" data-value="ESFJ" onclick="selectMbti('ESFJ')">ESFJ<span class="mbti-nick">집정관</span></button>
+          <button class="mbti-btn explorer" data-value="ISTP" onclick="selectMbti('ISTP')">ISTP<span class="mbti-nick">장인</span></button>
+          <button class="mbti-btn explorer" data-value="ISFP" onclick="selectMbti('ISFP')">ISFP<span class="mbti-nick">모험가</span></button>
+          <button class="mbti-btn explorer" data-value="ESTP" onclick="selectMbti('ESTP')">ESTP<span class="mbti-nick">사업가</span></button>
+          <button class="mbti-btn explorer" data-value="ESFP" onclick="selectMbti('ESFP')">ESFP<span class="mbti-nick">연예인</span></button>
+        </div>
+        <div class="mbti-selected-display" id="mbtiSelectedDisplay" style="display:none;">
+          <i class="fas fa-check-circle"></i> <span id="mbtiSelectedText"></span> 선택됨
         </div>
       </div>
 
