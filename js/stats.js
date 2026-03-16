@@ -10,6 +10,72 @@ const EXAM_CATEGORIES_LIST = [
 ];
 
 // ============================================================
+// 샘플 데이터 (API 연결 실패 시 표시용)
+// ============================================================
+const SAMPLE_DATA = [
+  {
+    session_id:'sample_001',mbti:'INTJ',exam_type:'객관식',exam_category:'공무원',submitted_at:'2026-03-10T09:00:00.000Z',
+    q1:'맞다',q2:'아니다',q3:'맞다',q4:'잘 모르겠다',q5:'아니다',q6:'맞다',q7:'아니다',q8:'잘 모르겠다',q9:'아니다',q10:'맞다',
+    q11:'잘 모르겠다',q12:'아니다',q13:'맞다',q14:'아니다',q15:'맞다',q16:'잘 모르겠다',q17:'맞다',q18:'아니다',q19:'맞다',q20:'아니다',
+    q21:'잘 모르겠다',q22:'맞다',q23:'아니다',q24:'맞다',q25:'잘 모르겠다',q26:'아니다',q27:'맞다',q28:'아니다',q29:'맞다',q30:'잘 모르겠다',
+    q31:'맞다',q32:'아니다',q33:'잘 모르겠다',q34:'맞다',q35:'아니다',q36:'맞다',q37:'잘 모르겠다',q38:'아니다',q39:'맞다',q40:'아니다',
+    q41:'맞다',q42:'잘 모르겠다',q43:'아니다',q44:'맞다',q45:'아니다',q46:'맞다',q47:'잘 모르겠다',q48:'아니다',q49:'맞다',q50:'아니다',
+    q51:'잘 모르겠다',q52:'아니다',q53:'맞다',q54:'아니다',q55:'잘 모르겠다',q56:'맞다',q57:'아니다',q58:'맞다',q59:'잘 모르겠다',q60:'아니다',
+    q61:'맞다',q62:'아니다',q63:'잘 모르겠다',q64:'맞다',q65:'아니다',q66:'맞다',q67:'맞다',q68:'아니다',q69:'잘 모르겠다',q70:'맞다',
+    q71:'아니다',q72:'맞다',q73:'잘 모르겠다',q74:'아니다',q75:'맞다',q76:'아니다',q77:'잘 모르겠다',q78:'맞다',q79:'아니다',q80:'맞다',
+    q81:'잘 모르겠다',q82:'아니다'
+  },
+  {
+    session_id:'sample_002',mbti:'ENFP',exam_type:'객관식',exam_category:'세무사',submitted_at:'2026-03-11T10:30:00.000Z',
+    q1:'아니다',q2:'아니다',q3:'잘 모르겠다',q4:'아니다',q5:'아니다',q6:'아니다',q7:'잘 모르겠다',q8:'아니다',q9:'아니다',q10:'아니다',
+    q11:'아니다',q12:'잘 모르겠다',q13:'아니다',q14:'아니다',q15:'잘 모르겠다',q16:'아니다',q17:'아니다',q18:'아니다',q19:'잘 모르겠다',q20:'아니다',
+    q21:'아니다',q22:'아니다',q23:'아니다',q24:'잘 모르겠다',q25:'아니다',q26:'아니다',q27:'아니다',q28:'잘 모르겠다',q29:'아니다',q30:'아니다',
+    q31:'아니다',q32:'잘 모르겠다',q33:'아니다',q34:'아니다',q35:'아니다',q36:'아니다',q37:'잘 모르겠다',q38:'아니다',q39:'아니다',q40:'아니다',
+    q41:'아니다',q42:'아니다',q43:'잘 모르겠다',q44:'아니다',q45:'아니다',q46:'아니다',q47:'아니다',q48:'잘 모르겠다',q49:'아니다',q50:'아니다',
+    q51:'아니다',q52:'아니다',q53:'잘 모르겠다',q54:'아니다',q55:'아니다',q56:'아니다',q57:'아니다',q58:'아니다',q59:'잘 모르겠다',q60:'아니다',
+    q61:'아니다',q62:'아니다',q63:'아니다',q64:'잘 모르겠다',q65:'아니다',q66:'아니다',q67:'아니다',q68:'잘 모르겠다',q69:'아니다',q70:'아니다',
+    q71:'아니다',q72:'아니다',q73:'잘 모르겠다',q74:'아니다',q75:'아니다',q76:'아니다',q77:'아니다',q78:'아니다',q79:'잘 모르겠다',q80:'아니다',
+    q81:'아니다',q82:'아니다'
+  },
+  {
+    session_id:'sample_003',mbti:'ISTJ',exam_type:'논술형·주관식',exam_category:'CPA',submitted_at:'2026-03-12T08:00:00.000Z',
+    q1:'맞다',q2:'맞다',q3:'맞다',q4:'맞다',q5:'잘 모르겠다',q6:'맞다',q7:'맞다',q8:'맞다',q9:'잘 모르겠다',q10:'맞다',
+    q11:'맞다',q12:'잘 모르겠다',q13:'맞다',q14:'맞다',q15:'맞다',q16:'맞다',q17:'맞다',q18:'잘 모르겠다',q19:'맞다',q20:'맞다',
+    q21:'맞다',q22:'맞다',q23:'잘 모르겠다',q24:'맞다',q25:'맞다',q26:'맞다',q27:'맞다',q28:'잘 모르겠다',q29:'맞다',q30:'맞다',
+    q31:'맞다',q32:'맞다',q33:'맞다',q34:'잘 모르겠다',q35:'맞다',q36:'맞다',q37:'맞다',q38:'맞다',q39:'잘 모르겠다',q40:'맞다',
+    q41:'맞다',q42:'맞다',q43:'맞다',q44:'잘 모르겠다',q45:'맞다',q46:'맞다',q47:'맞다',q48:'잘 모르겠다',q49:'맞다',q50:'맞다',
+    q51:'맞다',q52:'아니다',q53:'아니다',q54:'아니다',q55:'아니다',q56:'아니다',q57:'아니다',q58:'맞다',q59:'맞다',q60:'잘 모르겠다',
+    q61:'맞다',q62:'맞다',q63:'맞다',q64:'잘 모르겠다',q65:'맞다',q66:'맞다',q67:'맞다',q68:'맞다',q69:'잘 모르겠다',q70:'맞다',
+    q71:'맞다',q72:'맞다',q73:'잘 모르겠다',q74:'맞다',q75:'맞다',q76:'잘 모르겠다',q77:'맞다',q78:'맞다',q79:'맞다',q80:'잘 모르겠다',
+    q81:'맞다',q82:'맞다'
+  },
+  {
+    session_id:'sample_004',mbti:'INFP',exam_type:'객관식',exam_category:'수능',submitted_at:'2026-03-13T14:00:00.000Z',
+    q1:'잘 모르겠다',q2:'아니다',q3:'잘 모르겠다',q4:'아니다',q5:'아니다',q6:'잘 모르겠다',q7:'아니다',q8:'아니다',q9:'잘 모르겠다',q10:'아니다',
+    q11:'잘 모르겠다',q12:'아니다',q13:'아니다',q14:'잘 모르겠다',q15:'아니다',q16:'아니다',q17:'잘 모르겠다',q18:'아니다',q19:'아니다',q20:'잘 모르겠다',
+    q21:'아니다',q22:'맞다',q23:'맞다',q24:'아니다',q25:'맞다',q26:'아니다',q27:'맞다',q28:'잘 모르겠다',q29:'아니다',q30:'맞다',
+    q31:'잘 모르겠다',q32:'아니다',q33:'맞다',q34:'아니다',q35:'잘 모르겠다',q36:'아니다',q37:'맞다',q38:'아니다',q39:'잘 모르겠다',q40:'아니다',
+    q41:'맞다',q42:'아니다',q43:'잘 모르겠다',q44:'아니다',q45:'아니다',q46:'아니다',q47:'잘 모르겠다',q48:'아니다',q49:'아니다',q50:'잘 모르겠다',
+    q51:'아니다',q52:'맞다',q53:'아니다',q54:'잘 모르겠다',q55:'아니다',q56:'아니다',q57:'잘 모르겠다',q58:'맞다',q59:'아니다',q60:'잘 모르겠다',
+    q61:'아니다',q62:'맞다',q63:'아니다',q64:'잘 모르겠다',q65:'아니다',q66:'아니다',q67:'맞다',q68:'아니다',q69:'잘 모르겠다',q70:'맞다',
+    q71:'아니다',q72:'잘 모르겠다',q73:'아니다',q74:'맞다',q75:'아니다',q76:'잘 모르겠다',q77:'아니다',q78:'맞다',q79:'잘 모르겠다',q80:'아니다',
+    q81:'맞다',q82:'아니다'
+  },
+  {
+    session_id:'sample_005',mbti:'ENFJ',exam_type:'객관식',exam_category:'공기업',submitted_at:'2026-03-14T11:00:00.000Z',
+    q1:'아니다',q2:'맞다',q3:'아니다',q4:'맞다',q5:'잘 모르겠다',q6:'아니다',q7:'맞다',q8:'잘 모르겠다',q9:'아니다',q10:'아니다',
+    q11:'맞다',q12:'아니다',q13:'잘 모르겠다',q14:'아니다',q15:'맞다',q16:'아니다',q17:'맞다',q18:'아니다',q19:'잘 모르겠다',q20:'맞다',
+    q21:'아니다',q22:'아니다',q23:'맞다',q24:'아니다',q25:'잘 모르겠다',q26:'맞다',q27:'아니다',q28:'맞다',q29:'잘 모르겠다',q30:'아니다',
+    q31:'아니다',q32:'맞다',q33:'아니다',q34:'잘 모르겠다',q35:'맞다',q36:'아니다',q37:'아니다',q38:'맞다',q39:'아니다',q40:'잘 모르겠다',
+    q41:'아니다',q42:'맞다',q43:'아니다',q44:'아니다',q45:'잘 모르겠다',q46:'아니다',q47:'맞다',q48:'아니다',q49:'잘 모르겠다',q50:'아니다',
+    q51:'맞다',q52:'아니다',q53:'아니다',q54:'맞다',q55:'아니다',q56:'잘 모르겠다',q57:'맞다',q58:'아니다',q59:'맞다',q60:'아니다',
+    q61:'잘 모르겠다',q62:'아니다',q63:'맞다',q64:'아니다',q65:'맞다',q66:'아니다',q67:'아니다',q68:'맞다',q69:'아니다',q70:'잘 모르겠다',
+    q71:'맞다',q72:'아니다',q73:'맞다',q74:'아니다',q75:'잘 모르겠다',q76:'맞다',q77:'아니다',q78:'아니다',q79:'맞다',q80:'아니다',
+    q81:'잘 모르겠다',q82:'맞다'
+  }
+];
+
+// ============================================================
 // 전역
 // ============================================================
 let allData = [];
@@ -85,7 +151,7 @@ function applyFiltersAndRender() {
 }
 
 // ============================================================
-// 데이터 로드 (Google Apps Script 또는 로컬 없음 처리)
+// 데이터 로드 (Google Apps Script 연동)
 // ============================================================
 async function loadStats() {
   showLoading(true);
@@ -94,45 +160,183 @@ async function loadStats() {
 
   const apiUrl = typeof CONFIG !== 'undefined' ? CONFIG.APPS_SCRIPT_URL : '';
 
-  try {
-    if (!apiUrl) {
-      // Apps Script URL 미설정 → 빈 데이터로 표시
-      throw new Error('APPS_SCRIPT_URL_NOT_SET');
-    }
-
-    // GET 요청으로 전체 데이터 가져오기
-    const resp = await fetch(`${apiUrl}?action=getAll`, { mode: 'cors' });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-
-    const json = await resp.json();
-    allData = Array.isArray(json.data) ? json.data : [];
-
+  const hideLoading = () => {
     document.getElementById('loadingState').style.display = 'none';
+    if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+  };
+
+  const showContent = () => {
     document.getElementById('statsContent').style.display = 'block';
     document.getElementById('errorState').style.display = 'none';
+  };
 
+  // ── URL 미설정 ───────────────────────────────────────────────
+  if (!apiUrl || apiUrl === 'APPS_SCRIPT_URL_NOT_SET') {
+    hideLoading();
+    showContent();
+    allData = [];
     applyFiltersAndRender();
-
-  } catch (e) {
-    console.error('통계 로드 오류:', e);
-    document.getElementById('loadingState').style.display = 'none';
-
-    if (e.message === 'APPS_SCRIPT_URL_NOT_SET') {
-      // URL 미설정 → 안내 메시지로 표시
-      document.getElementById('statsContent').style.display = 'block';
-      document.getElementById('errorState').style.display = 'none';
-      allData = [];
-      applyFiltersAndRender();
-      // 상단에 설정 안내 배너 표시
-      showSetupBanner();
-    } else {
-      document.getElementById('errorState').style.display = 'flex';
-      const errMsg = document.getElementById('errorMsg');
-      if (errMsg) errMsg.textContent = '데이터를 불러오지 못했습니다. (' + e.message + ')';
-    }
+    showSetupBanner();
+    return;
   }
 
-  if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+  // ── API 호출 (JSONP 방식으로 CORS 우회) ──────────────────────
+  loadWithJsonp(apiUrl, hideLoading, showContent);
+}
+
+// JSONP 방식으로 Apps Script 데이터 로드 (CORS 우회)
+function loadWithJsonp(apiUrl, hideLoading, showContent) {
+  // 타임아웃 설정 (10초)
+  const timeoutId = setTimeout(() => {
+    cleanup();
+    hideLoading();
+    showContent();
+    allData = [];
+    applyFiltersAndRender();
+    showCorsErrorBanner(apiUrl);
+  }, 10000);
+
+  const cbName = '__statsCallback_' + Date.now();
+
+  function cleanup() {
+    clearTimeout(timeoutId);
+    if (window[cbName]) delete window[cbName];
+    const el = document.getElementById('jsonp-stats-script');
+    if (el) el.remove();
+  }
+
+  window[cbName] = function(json) {
+    cleanup();
+    allData = Array.isArray(json.data) ? json.data : [];
+    hideLoading();
+    showContent();
+    applyFiltersAndRender();
+    if (allData.length === 0) showEmptyDataBanner();
+  };
+
+  const script = document.createElement('script');
+  script.id = 'jsonp-stats-script';
+  // Apps Script에 callback 파라미터 전달
+  script.src = `${apiUrl}?action=getAll&callback=${cbName}`;
+  script.onerror = function() {
+    cleanup();
+    // JSONP 실패 → fetch 재시도
+    tryFetchFallback(apiUrl, hideLoading, showContent);
+  };
+  document.head.appendChild(script);
+}
+
+// fetch 폴백 (JSONP 실패 시)
+async function tryFetchFallback(apiUrl, hideLoading, showContent) {
+  try {
+    const resp = await fetch(`${apiUrl}?action=getAll`, {
+      method: 'GET',
+      mode: 'cors',
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    allData = Array.isArray(json.data) ? json.data : [];
+    hideLoading();
+    showContent();
+    applyFiltersAndRender();
+    if (allData.length === 0) showEmptyDataBanner();
+  } catch (e) {
+    console.error('통계 로드 오류 (fetch):', e);
+    hideLoading();
+    showContent();
+    allData = [];
+    applyFiltersAndRender();
+    showCorsErrorBanner(apiUrl);
+  }
+}
+
+function showEmptyDataBanner() {
+  const existing = document.getElementById('emptyDataBanner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'emptyDataBanner';
+  banner.style.cssText = `
+    background:#F0FDF4; border:1.5px solid #86EFAC; border-radius:10px;
+    padding:16px 20px; margin-bottom:20px; display:flex; align-items:flex-start; gap:14px;
+  `;
+  banner.innerHTML = `
+    <i class="fas fa-database" style="color:#22C55E;font-size:1.3rem;margin-top:2px;flex-shrink:0;"></i>
+    <div>
+      <strong style="color:#15803D;font-size:.95rem;">연결 성공! 아직 응답 데이터가 없습니다</strong>
+      <p style="color:#166534;font-size:.82rem;margin:6px 0 0;line-height:1.6;">
+        설문을 완료하면 이 통계 페이지에 데이터가 표시됩니다.<br/>
+        샘플 데이터를 삽입하려면 아래 URL을 브라우저에서 열어보세요:<br/>
+        <code style="background:#DCFCE7;padding:2px 6px;border-radius:4px;font-size:.78rem;word-break:break-all;">
+          ${typeof CONFIG !== 'undefined' ? CONFIG.APPS_SCRIPT_URL : ''}?action=seed
+        </code>
+      </p>
+    </div>
+  `;
+  const content = document.getElementById('statsContent');
+  if (content) content.insertBefore(banner, content.firstChild);
+}
+
+function showCorsErrorBanner(apiUrl) {
+  const existing = document.getElementById('corsErrorBanner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'corsErrorBanner';
+  banner.style.cssText = `
+    background:#FFF7ED; border:1.5px solid #FED7AA; border-radius:10px;
+    padding:16px 20px; margin-bottom:20px; display:flex; align-items:flex-start; gap:14px;
+  `;
+  banner.innerHTML = `
+    <i class="fas fa-exclamation-triangle" style="color:#F97316;font-size:1.3rem;margin-top:2px;flex-shrink:0;"></i>
+    <div style="width:100%">
+      <strong style="color:#C2410C;font-size:.95rem;">통계 데이터 연결 확인 필요</strong>
+      <p style="color:#92400E;font-size:.82rem;margin:6px 0 8px;line-height:1.6;">
+        Google Apps Script URL이 설정되었으나 데이터를 불러오지 못했습니다.<br/>
+        아래 버튼을 눌러 직접 API를 열어보세요 (새 탭에서 JSON 응답이 보이면 정상):
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <a href="${apiUrl}?action=getAll" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;background:#F97316;color:#fff;padding:7px 14px;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;">
+          <i class="fas fa-external-link-alt"></i> API 직접 열기
+        </a>
+        <a href="${apiUrl}?action=seed" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;background:#22C55E;color:#fff;padding:7px 14px;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;">
+          <i class="fas fa-database"></i> 샘플 5건 삽입
+        </a>
+        <button onclick="loadSamplePreview()"
+           style="display:inline-flex;align-items:center;gap:6px;background:#4F7EF7;color:#fff;padding:7px 14px;border-radius:8px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;">
+          <i class="fas fa-eye"></i> 샘플 데이터로 미리보기
+        </button>
+      </div>
+      <p style="color:#92400E;font-size:.78rem;margin:0;line-height:1.5;">
+        ⚠️ Apps Script 배포 시 <strong>"모든 사용자"</strong>로 설정했는지 확인하세요.<br/>
+        샘플 삽입 후 이 페이지를 새로고침하면 실제 통계가 표시됩니다.
+      </p>
+    </div>
+  `;
+  const content = document.getElementById('statsContent');
+  if (content) content.insertBefore(banner, content.firstChild);
+}
+
+// 샘플 데이터 미리보기 로드
+function loadSamplePreview() {
+  allData = SAMPLE_DATA;
+  applyFiltersAndRender();
+  // 배너 업데이트
+  const banner = document.getElementById('corsErrorBanner');
+  if (banner) {
+    banner.style.background = '#EFF6FF';
+    banner.style.borderColor = '#BFDBFE';
+    banner.innerHTML = `
+      <i class="fas fa-info-circle" style="color:#3B82F6;font-size:1.3rem;margin-top:2px;flex-shrink:0;"></i>
+      <div>
+        <strong style="color:#1D4ED8;font-size:.95rem;">📊 샘플 데이터 5건으로 미리보기 중</strong>
+        <p style="color:#1E40AF;font-size:.82rem;margin:6px 0 0;line-height:1.6;">
+          현재 표시되는 통계는 실제 데이터가 아닌 예시 데이터입니다.<br/>
+          실제 통계를 보려면 Google Apps Script를 설정하고 이 페이지를 새로고침하세요.
+        </p>
+      </div>
+    `;
+  }
 }
 
 function showSetupBanner() {

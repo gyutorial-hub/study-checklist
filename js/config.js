@@ -14,5 +14,5 @@ const CONFIG = {
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzoKx1w6fPuLWBPRbsQwAz4WiFeZzD4g_mPyyki8Wp1AMo_kL_w4K9r_FyJAjxUTZfxXQ/exec',
 
   // 앱 이름 (선택)
-  APP_NAME: '규토리얼 학습 자가진단',
+  APP_NAME: '수험생 학습 습관 자가진단',
 };
