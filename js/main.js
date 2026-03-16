@@ -364,15 +364,15 @@ async function submitSurvey() {
       QUESTIONS.forEach(q => { payload[`q${q.id}`] = answers[q.id]; });
 
       // ── Google Apps Script 저장 방식 ──────────────────────
-      // no-cors 환경에서 JSON body가 전달되지 않는 문제 해결:
-      // payload를 JSON 문자열로 직렬화 후 URL 파라미터로 GET 전송
-      // (Apps Script doGet에서 e.parameter.data로 수신)
-      const jsonStr = encodeURIComponent(JSON.stringify(payload));
-      await fetch(`${apiUrl}?action=save&data=${jsonStr}`, {
-        method: 'GET',
+      // POST + no-cors: body는 text/plain으로 전송
+      // Apps Script doPost에서 e.postData.contents로 JSON 수신
+      await fetch(apiUrl, {
+        method: 'POST',
         mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload),
       });
-      console.log('데이터 저장 요청 완료');
+      console.log('데이터 저장 요청 완료 (POST)');
     } catch (e) {
       console.warn('데이터 저장 실패 (결과는 계속 표시):', e);
     }
