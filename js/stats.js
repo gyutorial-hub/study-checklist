@@ -180,13 +180,42 @@ async function loadStats() {
     return;
   }
 
-  // ── API 호출 (JSONP 방식으로 CORS 우회) ──────────────────────
-  loadWithJsonp(apiUrl, hideLoading, showContent);
+  // ── API 호출 ────────────────────────────────────────────────
+  fetchStats(apiUrl, hideLoading, showContent);
 }
 
-// JSONP 방식으로 Apps Script 데이터 로드 (CORS 우회)
+// Apps Script fetch (no-cors 우회: 리다이렉트 URL 직접 추적)
+async function fetchStats(apiUrl, hideLoading, showContent) {
+  try {
+    // Apps Script는 302 리다이렉트를 하므로 redirect:'follow' 필수
+    const resp = await fetch(apiUrl + '?action=getAll', {
+      method: 'GET',
+      redirect: 'follow',
+    });
+
+    const text = await resp.text();
+    let json;
+    try { json = JSON.parse(text); } catch(_) {
+      throw new Error('JSON 파싱 실패: ' + text.slice(0, 100));
+    }
+
+    allData = Array.isArray(json.data) ? json.data : [];
+    hideLoading();
+    showContent();
+    applyFiltersAndRender();
+    if (allData.length === 0) showEmptyDataBanner();
+
+  } catch (e) {
+    console.warn('fetch 실패, JSONP 시도:', e.message);
+    // fetch 실패 시 JSONP 폴백
+    loadWithJsonp(apiUrl, hideLoading, showContent);
+  }
+}
+
+// JSONP 폴백
 function loadWithJsonp(apiUrl, hideLoading, showContent) {
-  // 타임아웃 설정 (10초)
+  const cbName = '__statsCallback_' + Date.now();
+
   const timeoutId = setTimeout(() => {
     cleanup();
     hideLoading();
@@ -194,13 +223,11 @@ function loadWithJsonp(apiUrl, hideLoading, showContent) {
     allData = [];
     applyFiltersAndRender();
     showCorsErrorBanner(apiUrl);
-  }, 10000);
-
-  const cbName = '__statsCallback_' + Date.now();
+  }, 12000);
 
   function cleanup() {
     clearTimeout(timeoutId);
-    if (window[cbName]) delete window[cbName];
+    delete window[cbName];
     const el = document.getElementById('jsonp-stats-script');
     if (el) el.remove();
   }
@@ -216,38 +243,16 @@ function loadWithJsonp(apiUrl, hideLoading, showContent) {
 
   const script = document.createElement('script');
   script.id = 'jsonp-stats-script';
-  // Apps Script에 callback 파라미터 전달
-  script.src = `${apiUrl}?action=getAll&callback=${cbName}`;
+  script.src = apiUrl + '?action=getAll&callback=' + cbName;
   script.onerror = function() {
     cleanup();
-    // JSONP 실패 → fetch 재시도
-    tryFetchFallback(apiUrl, hideLoading, showContent);
-  };
-  document.head.appendChild(script);
-}
-
-// fetch 폴백 (JSONP 실패 시)
-async function tryFetchFallback(apiUrl, hideLoading, showContent) {
-  try {
-    const resp = await fetch(`${apiUrl}?action=getAll`, {
-      method: 'GET',
-      mode: 'cors',
-    });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const json = await resp.json();
-    allData = Array.isArray(json.data) ? json.data : [];
-    hideLoading();
-    showContent();
-    applyFiltersAndRender();
-    if (allData.length === 0) showEmptyDataBanner();
-  } catch (e) {
-    console.error('통계 로드 오류 (fetch):', e);
     hideLoading();
     showContent();
     allData = [];
     applyFiltersAndRender();
     showCorsErrorBanner(apiUrl);
-  }
+  };
+  document.head.appendChild(script);
 }
 
 function showEmptyDataBanner() {

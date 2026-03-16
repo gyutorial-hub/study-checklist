@@ -36,14 +36,24 @@ function doOptions(e) {
 // ────────────────────────────────────────────────────────────────
 function doGet(e) {
   try {
-    const params  = e.parameter || {};
-    const action  = params.action  || 'getAll';
-    const callback = params.callback || '';  // JSONP 콜백 이름
+    const params   = e.parameter || {};
+    const action   = params.action   || 'getAll';
+    const callback = params.callback || '';
 
-    // ── action=seed: 샘플 데이터 5건 삽입 ──────────────────────
+    // ── action=seed: 샘플 데이터 5건 삽입 ─────────────────────
     if (action === 'seed') {
       seedSampleData();
       return respond({ success: true, message: '샘플 데이터 5건이 삽입되었습니다.' }, callback);
+    }
+
+    // ── action=clear: 시트 데이터 전체 삭제 (헤더 유지) ────────
+    if (action === 'clear') {
+      const ss    = SpreadsheetApp.getActiveSpreadsheet();
+      const sheet = ss.getSheetByName(SHEET_NAME);
+      if (sheet && sheet.getLastRow() > 1) {
+        sheet.deleteRows(2, sheet.getLastRow() - 1);
+      }
+      return respond({ success: true, message: '데이터가 삭제되었습니다.' }, callback);
     }
 
     // ── action=getAll: 전체 응답 반환 ──────────────────────────
